@@ -41,6 +41,7 @@ export class LoginPage {
     };
 
     console.log('Login DTO:', dto);
+    this.router.navigate(['/tabs/discovery']);
     // TODO: conectar con servicio de autenticación
   }
 

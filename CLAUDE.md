@@ -24,21 +24,21 @@ src/app/
 │   │   ├── login.dto.ts          # { email, password }
 │   │   └── register.dto.ts       # { name, email, password }
 │   ├── login/                    # Pantalla de login
-│   │   ├── login-routing.module.ts
-│   │   ├── login.module.ts
-│   │   ├── login.page.ts
-│   │   ├── login.page.html
-│   │   └── login.page.scss
 │   ├── register/                 # Pantalla de registro
-│   │   ├── register-routing.module.ts
-│   │   ├── register.module.ts
-│   │   ├── register.page.ts
-│   │   ├── register.page.html
-│   │   └── register.page.scss
 │   ├── auth-routing.module.ts
 │   └── auth.module.ts
+├── discovery/                    # Pantalla principal (swipe de grupos)
+│   ├── dtos/
+│   │   └── group.dto.ts          # { id, name, description, category, memberCount, distance, backgroundColor, tags }
+│   ├── discovery-routing.module.ts
+│   ├── discovery.module.ts
+│   ├── discovery.page.ts         # Lógica de swipe con GestureController
+│   ├── discovery.page.html
+│   └── discovery.page.scss
 ├── tabs/                         # Shell de tabs (post-login)
-├── tab1/, tab2/, tab3/           # Tabs placeholder
+│   ├── tabs.page.html            # Tab bar: Explorar / Mis grupos / Perfil
+│   └── tabs.page.scss
+├── tab2/, tab3/                  # Placeholders: Mis grupos, Perfil
 └── app-routing.module.ts         # Ruta raíz → /auth/login
 ```
 
@@ -47,7 +47,10 @@ src/app/
 - `/auth` → redirige a `/auth/login`
 - `/auth/login` → LoginPage
 - `/auth/register` → RegisterPage
-- `/tabs` → tabs shell (disponible post-login)
+- `/tabs` → tabs shell (post-login)
+- `/tabs/discovery` → DiscoveryPage (tab principal)
+- `/tabs/tab2` → placeholder Mis grupos
+- `/tabs/tab3` → placeholder Perfil
 
 ## Convenciones de código
 - Plantillas HTML: usar nueva sintaxis de control flow de Angular (`@if`, `@for`, `@switch`) en lugar de directivas (`*ngIf`, `*ngFor`)
