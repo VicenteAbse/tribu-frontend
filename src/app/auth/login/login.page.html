@@ -1,0 +1,98 @@
+<ion-content class="login-content" [fullscreen]="true">
+  <div class="login-wrapper">
+
+    <div class="hero-section">
+      <div class="logo-circle">
+        <ion-icon name="people-circle-outline"></ion-icon>
+      </div>
+      <h1 class="app-name">Trivy</h1>
+      <p class="app-tagline">Encuentra tu tribu cerca de ti</p>
+    </div>
+
+    <div class="form-card">
+      <h2 class="form-title">Bienvenido de nuevo</h2>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+
+        <div class="field-group">
+          <ion-item class="custom-item" lines="none">
+            <ion-icon name="mail-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              formControlName="email"
+              type="email"
+              placeholder="Correo electrónico"
+              autocomplete="email"
+              class="custom-input">
+            </ion-input>
+          </ion-item>
+          @if (emailControl?.invalid && emailControl?.touched) {
+            <p class="error-msg">
+              @if (emailControl?.errors?.['required']) { Ingresa tu correo. }
+              @else { El correo no es válido. }
+            </p>
+          }
+        </div>
+
+        <div class="field-group">
+          <ion-item class="custom-item" lines="none">
+            <ion-icon name="lock-closed-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              formControlName="password"
+              [type]="showPassword ? 'text' : 'password'"
+              placeholder="Contraseña"
+              class="custom-input">
+            </ion-input>
+            <ion-icon
+              [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
+              slot="end"
+              class="toggle-icon"
+              (click)="togglePassword()">
+            </ion-icon>
+          </ion-item>
+          @if (passwordControl?.invalid && passwordControl?.touched) {
+            <p class="error-msg">
+              @if (passwordControl?.errors?.['required']) { Ingresa tu contraseña. }
+              @else { Mínimo 6 caracteres. }
+            </p>
+          }
+        </div>
+
+        <div class="forgot-row">
+          <a class="forgot-link">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <ion-button
+          expand="block"
+          class="primary-btn"
+          type="submit"
+          [disabled]="loginForm.invalid">
+          Ingresar
+        </ion-button>
+
+      </form>
+
+      <div class="divider">
+        <span class="divider-line"></span>
+        <span class="divider-text">o continúa con</span>
+        <span class="divider-line"></span>
+      </div>
+
+      <div class="social-buttons">
+        <ion-button class="social-btn google-btn" expand="block" (click)="loginWithGoogle()">
+          <ion-icon name="logo-google" slot="start"></ion-icon>
+          Google
+        </ion-button>
+        <ion-button class="social-btn facebook-btn" expand="block" (click)="loginWithFacebook()">
+          <ion-icon name="logo-facebook" slot="start"></ion-icon>
+          Facebook
+        </ion-button>
+      </div>
+
+      <p class="bottom-link">
+        ¿No tienes cuenta?
+        <a (click)="goToRegister()">Regístrate</a>
+      </p>
+    </div>
+
+  </div>
+</ion-content>

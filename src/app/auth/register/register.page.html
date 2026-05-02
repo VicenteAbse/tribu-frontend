@@ -1,0 +1,142 @@
+<ion-content class="register-content" [fullscreen]="true">
+  <div class="register-wrapper">
+
+    <div class="hero-section">
+      <div class="logo-circle">
+        <ion-icon name="people-circle-outline"></ion-icon>
+      </div>
+      <h1 class="app-name">Trivy</h1>
+      <p class="app-tagline">Únete a la comunidad</p>
+    </div>
+
+    <div class="form-card">
+      <h2 class="form-title">Crear cuenta</h2>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+
+        <div class="field-group">
+          <ion-item class="custom-item" lines="none">
+            <ion-icon name="person-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              formControlName="name"
+              type="text"
+              placeholder="Nombre completo"
+              autocomplete="name"
+              class="custom-input">
+            </ion-input>
+          </ion-item>
+          @if (nameControl?.invalid && nameControl?.touched) {
+            <p class="error-msg">
+              @if (nameControl?.errors?.['required']) { Ingresa tu nombre. }
+              @else { Mínimo 2 caracteres. }
+            </p>
+          }
+        </div>
+
+        <div class="field-group">
+          <ion-item class="custom-item" lines="none">
+            <ion-icon name="mail-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              formControlName="email"
+              type="email"
+              placeholder="Correo electrónico"
+              autocomplete="email"
+              class="custom-input">
+            </ion-input>
+          </ion-item>
+          @if (emailControl?.invalid && emailControl?.touched) {
+            <p class="error-msg">
+              @if (emailControl?.errors?.['required']) { Ingresa tu correo. }
+              @else { El correo no es válido. }
+            </p>
+          }
+        </div>
+
+        <div class="field-group">
+          <ion-item class="custom-item" lines="none">
+            <ion-icon name="lock-closed-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              formControlName="password"
+              [type]="showPassword ? 'text' : 'password'"
+              placeholder="Contraseña"
+              class="custom-input">
+            </ion-input>
+            <ion-icon
+              [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
+              slot="end"
+              class="toggle-icon"
+              (click)="togglePassword()">
+            </ion-icon>
+          </ion-item>
+          @if (passwordControl?.invalid && passwordControl?.touched) {
+            <p class="error-msg">
+              @if (passwordControl?.errors?.['required']) { Ingresa una contraseña. }
+              @else { Mínimo 6 caracteres. }
+            </p>
+          }
+        </div>
+
+        <div class="field-group">
+          <ion-item class="custom-item" lines="none">
+            <ion-icon name="shield-checkmark-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              formControlName="confirmPassword"
+              [type]="showConfirm ? 'text' : 'password'"
+              placeholder="Confirmar contraseña"
+              class="custom-input">
+            </ion-input>
+            <ion-icon
+              [name]="showConfirm ? 'eye-off-outline' : 'eye-outline'"
+              slot="end"
+              class="toggle-icon"
+              (click)="toggleConfirm()">
+            </ion-icon>
+          </ion-item>
+          @if (confirmMismatch) {
+            <p class="error-msg">Las contraseñas no coinciden.</p>
+          }
+        </div>
+
+        <div class="terms-row">
+          <ion-checkbox formControlName="terms" class="terms-check"></ion-checkbox>
+          <p class="terms-text">
+            Acepto los <a class="terms-link">Términos de uso</a> y la
+            <a class="terms-link">Política de privacidad</a>
+          </p>
+        </div>
+
+        <ion-button
+          expand="block"
+          class="primary-btn"
+          type="submit"
+          [disabled]="registerForm.invalid">
+          Crear cuenta
+        </ion-button>
+
+      </form>
+
+      <div class="divider">
+        <span class="divider-line"></span>
+        <span class="divider-text">o regístrate con</span>
+        <span class="divider-line"></span>
+      </div>
+
+      <div class="social-buttons">
+        <ion-button class="social-btn google-btn" expand="block" (click)="registerWithGoogle()">
+          <ion-icon name="logo-google" slot="start"></ion-icon>
+          Google
+        </ion-button>
+        <ion-button class="social-btn facebook-btn" expand="block" (click)="registerWithFacebook()">
+          <ion-icon name="logo-facebook" slot="start"></ion-icon>
+          Facebook
+        </ion-button>
+      </div>
+
+      <p class="bottom-link">
+        ¿Ya tienes cuenta?
+        <a (click)="goToLogin()">Inicia sesión</a>
+      </p>
+    </div>
+
+  </div>
+</ion-content>
