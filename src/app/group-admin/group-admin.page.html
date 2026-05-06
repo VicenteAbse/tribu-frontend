@@ -1,0 +1,279 @@
+@if (group) {
+
+  <ion-header class="admin-header">
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button class="back-btn" (click)="goBack()">
+          <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+
+      <div class="header-content">
+        <div class="header-avatar" [style.background-color]="group.backgroundColor">
+          {{ group.name[0] }}
+        </div>
+        <div class="header-info">
+          <span class="header-eyebrow">Administrar</span>
+          <span class="header-name">{{ group.name }}</span>
+        </div>
+      </div>
+
+      @if (group.viewerRole === 'creator') {
+        <div slot="end" class="creator-badge">Creador</div>
+      }
+    </ion-toolbar>
+
+    <ion-toolbar class="segment-toolbar">
+      <ion-segment
+        [value]="activeSegment"
+        (ionChange)="onSegmentChange($event)"
+        class="admin-segment">
+        @for (seg of segments; track seg.value) {
+          <ion-segment-button [value]="seg.value">
+            <ion-label class="seg-label">
+              {{ seg.label }}
+              @if (seg.badge > 0) {
+                <span class="seg-badge">{{ seg.badge }}</span>
+              }
+            </ion-label>
+          </ion-segment-button>
+        }
+      </ion-segment>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="admin-content">
+
+    <!-- ── Solicitudes ── -->
+    @if (activeSegment === 'requests') {
+      <div class="tab-content">
+        @if (pendingRequests.length === 0) {
+          <div class="empty-state">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <p>No hay solicitudes pendientes</p>
+          </div>
+        } @else {
+          <p class="tab-hint">{{ pendingRequests.length }} persona(s) esperan ser aceptadas</p>
+          @for (req of pendingRequests; track req.id) {
+            <div class="request-card">
+              <div class="req-avatar" [style.background-color]="req.userAvatarColor">
+                {{ req.userInitials }}
+              </div>
+              <div class="req-info">
+                <span class="req-name">{{ req.userName }}</span>
+                <span class="req-bio">{{ req.bio }}</span>
+                <span class="req-time">{{ req.requestedAt }}</span>
+              </div>
+              <div class="req-actions">
+                <button class="action-btn reject-btn" type="button" (click)="rejectRequest(req)">
+                  <ion-icon name="close-outline"></ion-icon>
+                </button>
+                <button class="action-btn approve-btn" type="button" (click)="approveRequest(req)">
+                  <ion-icon name="checkmark-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    }
+
+    <!-- ── Miembros ── -->
+    @if (activeSegment === 'members') {
+      <div class="tab-content">
+        <p class="tab-hint">{{ members.length }} miembros · toca ··· para gestionar</p>
+        @for (member of members; track member.id) {
+          <div class="member-row">
+            <div class="member-avatar" [style.background-color]="group.backgroundColor">
+              {{ member.initials }}
+            </div>
+            <div class="member-info">
+              <span class="member-name">{{ member.name }}</span>
+              <div class="member-tags">
+                @if (member.role === 'admin') {
+                  <span class="role-chip admin-chip">Admin</span>
+                }
+                @if (member.isMuted) {
+                  <span class="role-chip muted-chip">
+                    <ion-icon name="volume-mute-outline"></ion-icon> Silenciado
+                  </span>
+                }
+              </div>
+            </div>
+            @if (member.role !== 'admin') {
+              <button class="menu-btn" type="button" (click)="openMemberActions(member)">
+                <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ── Eventos ── -->
+    @if (activeSegment === 'events') {
+      <div class="tab-content">
+
+        @if (!showEventForm) {
+          <button class="create-event-btn" type="button" (click)="showEventForm = true">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            Crear nuevo evento
+          </button>
+        } @else {
+          <div class="event-form-card" [formGroup]="eventForm">
+            <h3 class="form-card-title">Nuevo evento</h3>
+
+            <div class="form-field">
+              <label class="form-label">Título *</label>
+              <input class="form-input" type="text" placeholder="Ej: Salida al Parque" formControlName="title" />
+              @if (eventForm.get('title')!.touched && eventForm.get('title')!.hasError('required')) {
+                <p class="form-error">El título es obligatorio</p>
+              }
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">Descripción</label>
+              <textarea class="form-input form-textarea" placeholder="De qué se trata..." formControlName="description" rows="2"></textarea>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">Fecha y hora *</label>
+              <input class="form-input" type="text" placeholder="Ej: Sáb 17 Mayo · 9:00 AM" formControlName="date" />
+              @if (eventForm.get('date')!.touched && eventForm.get('date')!.hasError('required')) {
+                <p class="form-error">La fecha es obligatoria</p>
+              }
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">Lugar</label>
+              <input class="form-input" type="text" placeholder="Ej: Parque Central" formControlName="location" />
+            </div>
+
+            <div class="form-actions">
+              <button class="form-cancel-btn" type="button" (click)="showEventForm = false; eventForm.reset()">
+                Cancelar
+              </button>
+              <button class="form-submit-btn" type="button" (click)="submitEvent()">
+                Crear evento
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (upcomingEvents.length > 0) {
+          <p class="events-section-label">Próximos</p>
+          @for (event of upcomingEvents; track event.id) {
+            <div class="event-row">
+              <div class="event-icon-box" [style.background-color]="group.backgroundColor + '22'">
+                <ion-icon name="calendar-outline" [style.color]="group.backgroundColor"></ion-icon>
+              </div>
+              <div class="event-info">
+                <span class="event-title">{{ event.title }}</span>
+                <span class="event-date">{{ event.date }}</span>
+                @if (event.location) {
+                  <span class="event-location">
+                    <ion-icon name="location-outline"></ion-icon>{{ event.location }}
+                  </span>
+                }
+              </div>
+            </div>
+          }
+        }
+
+        @if (pastEvents.length > 0) {
+          <p class="events-section-label past-label">Pasados</p>
+          @for (event of pastEvents; track event.id) {
+            <div class="event-row past-event-row">
+              <div class="event-icon-box past-icon-box">
+                <ion-icon name="calendar-outline"></ion-icon>
+              </div>
+              <div class="event-info">
+                <span class="event-title past-text">{{ event.title }}</span>
+                <span class="event-date past-text">{{ event.date }}</span>
+              </div>
+              <span class="past-chip">Pasado</span>
+            </div>
+          }
+        }
+
+        @if (upcomingEvents.length === 0 && pastEvents.length === 0) {
+          <div class="empty-state">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <p>Aún no hay eventos</p>
+          </div>
+        }
+
+      </div>
+    }
+
+    <!-- ── Editar grupo (solo creador) ── -->
+    @if (activeSegment === 'edit') {
+      <div class="tab-content" [formGroup]="editForm">
+
+        <div class="form-field">
+          <label class="form-label">Nombre del grupo</label>
+          <input class="form-input" type="text" formControlName="name" />
+          @if (editForm.get('name')!.touched && editForm.get('name')!.hasError('required')) {
+            <p class="form-error">El nombre es obligatorio</p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-input form-textarea" formControlName="description" rows="3"></textarea>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">Categoría</label>
+          <div class="category-grid">
+            @for (cat of categories; track cat) {
+              <button
+                class="cat-chip"
+                type="button"
+                [class.selected]="editForm.get('category')!.value === cat"
+                (click)="selectCategory(cat)">
+                {{ cat }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">Política de ingreso</label>
+          <div class="policy-row">
+            <button
+              class="policy-btn"
+              type="button"
+              [class.selected]="editForm.get('joinPolicy')!.value === 'open'"
+              (click)="setJoinPolicy('open')">
+              <ion-icon name="heart-outline"></ion-icon>
+              Libre (con like)
+            </button>
+            <button
+              class="policy-btn"
+              type="button"
+              [class.selected]="editForm.get('joinPolicy')!.value === 'approval'"
+              (click)="setJoinPolicy('approval')">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+              Con aprobación
+            </button>
+          </div>
+        </div>
+
+        <button class="save-edit-btn" type="button" (click)="saveGroupEdit()">
+          Guardar cambios
+        </button>
+
+      </div>
+    }
+
+  </ion-content>
+
+} @else {
+  <ion-content>
+    <div class="empty-state" style="height:100%">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <p>Sin acceso de administrador</p>
+    </div>
+  </ion-content>
+}

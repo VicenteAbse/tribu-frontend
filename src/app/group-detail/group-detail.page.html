@@ -12,9 +12,16 @@
         <ion-button fill="clear" class="back-btn" (click)="goBack()">
           <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
         </ion-button>
-        <ion-button fill="clear" class="share-btn">
-          <ion-icon name="share-social-outline" slot="icon-only"></ion-icon>
-        </ion-button>
+        <div class="hero-top-right">
+          @if (isAdmin) {
+            <ion-button fill="clear" class="admin-btn" (click)="goToAdmin()">
+              <ion-icon name="settings-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          }
+          <ion-button fill="clear" class="share-btn">
+            <ion-icon name="share-social-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
       </div>
 
       <div class="hero-info">
@@ -49,23 +56,28 @@
         }
       </div>
 
-      <!-- Próximo evento -->
-      @if (group.nextEvent) {
+      <!-- Eventos -->
+      @if (upcomingEvents.length > 0) {
         <section class="section">
-          <h2 class="section-title">Próximo evento</h2>
-          <div class="event-card">
-            <div class="event-icon" [style.background-color]="group.backgroundColor + '33'">
-              <ion-icon name="calendar-outline" [style.color]="group.backgroundColor"></ion-icon>
+          <h2 class="section-title">
+            Eventos
+            <span class="members-count">{{ upcomingEvents.length }}</span>
+          </h2>
+          @for (event of upcomingEvents; track event.id) {
+            <div class="event-card">
+              <div class="event-icon" [style.background-color]="group.backgroundColor + '33'">
+                <ion-icon name="calendar-outline" [style.color]="group.backgroundColor"></ion-icon>
+              </div>
+              <div class="event-info">
+                <p class="event-name">{{ event.title }}</p>
+                <p class="event-date">{{ event.date }}</p>
+                <p class="event-location">
+                  <ion-icon name="location-outline"></ion-icon>
+                  {{ event.location }}
+                </p>
+              </div>
             </div>
-            <div class="event-info">
-              <p class="event-name">Encuentro del grupo</p>
-              <p class="event-date">{{ group.nextEvent }}</p>
-              <p class="event-location">
-                <ion-icon name="location-outline"></ion-icon>
-                {{ group.location }}
-              </p>
-            </div>
-          </div>
+          }
         </section>
       }
 

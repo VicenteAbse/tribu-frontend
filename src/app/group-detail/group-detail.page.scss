@@ -35,12 +35,20 @@
   z-index: 1;
 }
 
+.hero-top-right {
+  display: flex;
+  align-items: center;
+}
+
 .back-btn,
-.share-btn {
+.share-btn,
+.admin-btn {
   --color: #fff;
   --background-hover: rgba(255,255,255,0.15);
   font-size: 22px;
 }
+
+.event-card + .event-card { margin-top: 10px; }
 
 .hero-info {
   position: relative;

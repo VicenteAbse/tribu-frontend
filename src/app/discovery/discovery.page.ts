@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  NgZone,
   OnDestroy,
   QueryList,
   ViewChildren
@@ -65,11 +66,12 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy {
 
   constructor(
     private gestureCtrl: GestureController,
-    private router: Router
+    private router: Router,
+    private ngZone: NgZone
   ) {}
 
   ngAfterViewInit() {
-    this.cardElements.changes.subscribe(() => this.setupGesture());
+    this.cardElements.changes.subscribe(() => setTimeout(() => this.setupGesture(), 0));
     this.setupGesture();
   }
 
@@ -135,9 +137,11 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy {
     el.style.transition = 'transform 0.38s ease';
     el.style.transform = `translateX(${x}px) rotate(${rotate}deg)`;
     setTimeout(() => {
-      this.currentIndex++;
-      this.isAnimating = false;
-      this.movedPx = 0;
+      this.ngZone.run(() => {
+        this.currentIndex++;
+        this.isAnimating = false;
+        this.movedPx = 0;
+      });
     }, 390);
   }
 

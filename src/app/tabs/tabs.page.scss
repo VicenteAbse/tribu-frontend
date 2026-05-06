@@ -1,11 +1,11 @@
 .trivy-tab-bar {
-  --background: #0f0c29;
+  --background: var(--c-bg);
   --border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--c-surface-2);
   padding-bottom: env(safe-area-inset-bottom);
 
   ion-tab-button {
-    --color: rgba(255, 255, 255, 0.35);
+    --color: var(--c-text-6);
     --color-selected: #6C63FF;
 
     ion-label {

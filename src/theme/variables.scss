@@ -21,4 +21,50 @@
   --trivy-dark: #1a1a3e;
   --trivy-gradient-login: linear-gradient(145deg, #6C63FF 0%, #3b3d8f 50%, #1a1a3e 100%);
   --trivy-gradient-register: linear-gradient(145deg, #FF6584 0%, #a855f7 50%, #1a1a3e 100%);
+
+  // ── App theme tokens (dark by default) ──────────
+  --c-bg:            #0f0c29;
+  --c-bg-elevated:   #1e1b42;
+  --c-bg-chat:       #12102b;
+  --c-surface:       rgba(255, 255, 255, 0.05);
+  --c-surface-2:     rgba(255, 255, 255, 0.08);
+  --c-border:        rgba(255, 255, 255, 0.07);
+  --c-border-med:    rgba(255, 255, 255, 0.10);
+  --c-border-strong: rgba(255, 255, 255, 0.15);
+  --c-text-1:        #ffffff;
+  --c-text-2:        rgba(255, 255, 255, 0.85);
+  --c-text-3:        rgba(255, 255, 255, 0.65);
+  --c-text-4:        rgba(255, 255, 255, 0.55);
+  --c-text-5:        rgba(255, 255, 255, 0.45);
+  --c-text-6:        rgba(255, 255, 255, 0.35);
+  --c-text-7:        rgba(255, 255, 255, 0.25);
+  --c-text-8:        rgba(255, 255, 255, 0.20);
+  --c-text-9:        rgba(255, 255, 255, 0.12);
+  --c-bubble-in:     #1e1b42;
+  --c-shadow:        rgba(0, 0, 0, 0.5);
+  --c-dot-border:    #0f0c29;
+}
+
+// ── Light theme overrides ────────────────────────
+body.light-theme {
+  --c-bg:            #f2f1fb;
+  --c-bg-elevated:   #ffffff;
+  --c-bg-chat:       #e8e3f8;
+  --c-surface:       rgba(0, 0, 0, 0.04);
+  --c-surface-2:     rgba(0, 0, 0, 0.06);
+  --c-border:        rgba(0, 0, 0, 0.08);
+  --c-border-med:    rgba(0, 0, 0, 0.08);
+  --c-border-strong: rgba(0, 0, 0, 0.14);
+  --c-text-1:        #1a1a3e;
+  --c-text-2:        rgba(26, 26, 62, 0.85);
+  --c-text-3:        rgba(26, 26, 62, 0.65);
+  --c-text-4:        rgba(26, 26, 62, 0.55);
+  --c-text-5:        rgba(26, 26, 62, 0.45);
+  --c-text-6:        rgba(26, 26, 62, 0.35);
+  --c-text-7:        rgba(26, 26, 62, 0.25);
+  --c-text-8:        rgba(26, 26, 62, 0.20);
+  --c-text-9:        rgba(26, 26, 62, 0.12);
+  --c-bubble-in:     #ffffff;
+  --c-shadow:        rgba(0, 0, 0, 0.12);
+  --c-dot-border:    #f2f1fb;
 }

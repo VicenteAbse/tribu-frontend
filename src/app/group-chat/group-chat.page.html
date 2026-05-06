@@ -33,19 +33,31 @@
   <ion-content class="chat-content" [fullscreen]="false">
     <div class="messages-container">
 
-      @for (msg of messages; track msg.id) {
+      <!-- Banner anclado (evento más reciente) -->
+      @if (pinnedEvent) {
+        <div class="pinned-banner" [style.border-left-color]="group.backgroundColor">
+          <ion-icon name="calendar-outline" class="pinned-icon" [style.color]="group.backgroundColor"></ion-icon>
+          <div class="pinned-body">
+            <span class="pinned-label">Próximo evento</span>
+            <span class="pinned-title">{{ pinnedEvent.eventTitle }}</span>
+            <span class="pinned-date" [style.color]="group.backgroundColor">{{ pinnedEvent.eventDate }}</span>
+          </div>
+          <button class="pinned-close" type="button" (click)="pinnedDismissed = true">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+      }
 
-        <!-- Separador de fecha -->
+      @for (msg of textMessages; track msg.id) {
+
         @if (msg.dateSeparator) {
           <div class="date-separator">
             <span>{{ msg.dateSeparator }}</span>
           </div>
         }
 
-        <!-- Fila del mensaje -->
         <div class="msg-row" [class.own-row]="msg.isOwn">
 
-          <!-- Avatar del emisor (solo mensajes ajenos) -->
           @if (!msg.isOwn) {
             <div class="msg-avatar" [style.background-color]="group.backgroundColor">
               {{ msg.senderName[0] }}
@@ -53,14 +65,11 @@
           }
 
           <div class="bubble-col" [class.own-col]="msg.isOwn">
-            <!-- Nombre del emisor (solo mensajes ajenos) -->
             @if (!msg.isOwn) {
               <span class="sender-name" [style.color]="group.backgroundColor">
                 {{ msg.senderName }}
               </span>
             }
-
-            <!-- Burbuja -->
             <div class="bubble" [class.own-bubble]="msg.isOwn">
               <p class="bubble-text">{{ msg.text }}</p>
               <span class="bubble-time">{{ msg.time }}</span>

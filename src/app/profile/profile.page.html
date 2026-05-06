@@ -76,7 +76,7 @@
             <span class="row-label">{{ item.label }}</span>
 
             @if (item.value) {
-              <span class="row-value">{{ item.value }}</span>
+              <span class="row-value">{{ item.action === 'appearance' ? themeService.label : item.value }}</span>
             }
 
             <ion-icon name="chevron-forward-outline" class="row-chevron"></ion-icon>

@@ -1,6 +1,9 @@
 // ── Page background ───────────────────────────
 .discovery-content {
-  --background: #0f0c29;
+  --background: var(--c-bg);
+}
+
+body:not(.light-theme) .discovery-content {
   --background: linear-gradient(160deg, #1a1a3e 0%, #16213e 60%, #0f0c29 100%);
 }
 
@@ -34,7 +37,7 @@
 .brand-name {
   font-size: 22px;
   font-weight: 800;
-  color: #fff;
+  color: var(--c-text-1);
   letter-spacing: 0.5px;
 }
 
@@ -44,7 +47,7 @@
 }
 
 .icon-btn {
-  --color: rgba(255, 255, 255, 0.6);
+  --color: var(--c-text-4);
   --padding-start: 6px;
   --padding-end: 6px;
   font-size: 20px;
@@ -56,7 +59,7 @@
   align-items: center;
   gap: 4px;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--c-text-5);
   margin-bottom: 16px;
 
   ion-icon {
@@ -85,7 +88,7 @@
   inset: 0;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 16px 48px var(--c-shadow);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -286,8 +289,8 @@
 }
 
 .pass-btn {
-  --background: #1e1e3a;
-  --background-activated: #2a2a50;
+  --background: var(--c-bg-elevated);
+  --background-activated: var(--c-surface-2);
   --color: #ff1744;
   --box-shadow: 0 4px 16px rgba(255, 23, 68, 0.25);
   border: 2px solid rgba(255, 23, 68, 0.3);
@@ -295,10 +298,10 @@
 }
 
 .info-btn {
-  --background: #1e1e3a;
-  --background-activated: #2a2a50;
-  --color: rgba(255, 255, 255, 0.5);
-  --box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  --background: var(--c-bg-elevated);
+  --background-activated: var(--c-surface-2);
+  --color: var(--c-text-4);
+  --box-shadow: 0 4px 16px var(--c-shadow);
   width: 44px;
   height: 44px;
 
@@ -331,20 +334,20 @@
 
 .empty-icon {
   font-size: 72px;
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--c-text-8);
   margin-bottom: 20px;
 }
 
 .empty-state h3 {
   font-size: 20px;
   font-weight: 700;
-  color: #fff;
+  color: var(--c-text-1);
   margin: 0 0 8px;
 }
 
 .empty-state p {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--c-text-4);
   margin: 0 0 24px;
 }
 

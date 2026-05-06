@@ -1,0 +1,223 @@
+.edit-content {
+  --background: var(--c-bg);
+}
+
+// ── Header ────────────────────────────────────
+.edit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 52px 16px 16px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--c-text-5);
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+}
+
+.header-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--c-text-1);
+}
+
+.save-btn {
+  background: none;
+  border: none;
+  color: #6C63FF;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+// ── Avatar ────────────────────────────────────
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 20px 28px;
+}
+
+.avatar-wrap {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 800;
+  color: #fff;
+  box-shadow: 0 8px 32px var(--c-shadow);
+  border: 3px solid var(--c-border-strong);
+  transition: background-color 0.2s ease;
+}
+
+.camera-btn {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--c-bg-elevated);
+  border: 2px solid var(--c-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 15px;
+    color: #6C63FF;
+  }
+}
+
+.avatar-hint {
+  font-size: 12px;
+  color: var(--c-text-7);
+  margin: 0 0 16px;
+}
+
+// ── Color picker ──────────────────────────────
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 18px;
+  padding: 16px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.color-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+
+  &.selected {
+    border-color: var(--c-text-1);
+    transform: scale(1.15);
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+// ── Form ──────────────────────────────────────
+.edit-form {
+  padding: 0 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.field-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-text-6);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-left: 4px;
+}
+
+.char-count {
+  font-size: 11px;
+  color: var(--c-text-7);
+  font-weight: 500;
+
+  &.over {
+    color: #FC5C65;
+  }
+}
+
+.input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  padding: 0 16px;
+  transition: border-color 0.2s;
+
+  &:focus-within {
+    border-color: rgba(108, 99, 255, 0.6);
+  }
+
+  &.invalid {
+    border-color: rgba(252, 92, 101, 0.5);
+  }
+
+  &.textarea-wrap {
+    align-items: flex-start;
+    padding: 14px 16px;
+  }
+}
+
+.input-icon {
+  font-size: 17px;
+  color: var(--c-text-7);
+  flex-shrink: 0;
+}
+
+.field-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  color: var(--c-text-1);
+  padding: 14px 0;
+  width: 100%;
+  font-family: inherit;
+
+  &::placeholder {
+    color: var(--c-text-8);
+  }
+}
+
+.field-textarea {
+  resize: none;
+  padding: 0;
+  line-height: 1.55;
+}
+
+.field-error {
+  font-size: 12px;
+  color: #FC5C65;
+  margin: 0 0 0 4px;
+}

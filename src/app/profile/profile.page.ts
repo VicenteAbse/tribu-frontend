@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { ActionSheetController } from '@ionic/angular';
+import { ThemeService } from '../services/theme.service';
 import { UserProfileDto } from '../dtos/user-profile.dto';
 
 interface SettingsItem {
@@ -43,7 +45,7 @@ export class ProfilePage {
       items: [
         { icon: 'person-outline',       label: 'Editar perfil',       iconBg: '#6C63FF', action: 'editProfile'     },
         { icon: 'lock-closed-outline',  label: 'Cambiar contraseña',  iconBg: '#6C63FF', action: 'changePassword'  },
-        { icon: 'image-outline',        label: 'Foto de perfil',      iconBg: '#6C63FF', action: 'editPhoto'       }
+        // { icon: 'image-outline',        label: 'Foto de perfil',      iconBg: '#6C63FF', action: 'editPhoto'       }
       ]
     },
     {
@@ -51,7 +53,7 @@ export class ProfilePage {
       items: [
         { icon: 'notifications-outline', label: 'Notificaciones',     iconBg: '#4ECDC4', action: 'notifications'  },
         { icon: 'eye-outline',           label: 'Privacidad',         iconBg: '#4ECDC4', action: 'privacy'        },
-        { icon: 'language-outline',      label: 'Idioma',             iconBg: '#4ECDC4', action: 'language', value: 'Español' },
+        // { icon: 'language-outline',      label: 'Idioma',             iconBg: '#4ECDC4', action: 'language', value: 'Español' },
         { icon: 'color-palette-outline', label: 'Apariencia',         iconBg: '#4ECDC4', action: 'appearance', value: 'Oscuro' }
       ]
     },
@@ -65,15 +67,48 @@ export class ProfilePage {
     }
   ];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private actionSheet: ActionSheetController,
+    public themeService: ThemeService
+  ) {}
 
   get heroGradient(): string {
-    return `linear-gradient(175deg, ${this.profile.avatarColor}55 0%, #0f0c29 55%)`;
+    const bg = this.themeService.theme === 'light' ? '#f2f1fb' : '#0f0c29';
+    return `linear-gradient(175deg, ${this.profile.avatarColor}55 0%, ${bg} 55%)`;
   }
 
-  onSettingTap(action: string) {
+  async onSettingTap(action: string) {
+    if (action === 'editProfile') {
+      this.router.navigate(['/edit-profile']);
+      return;
+    }
+    if (action === 'appearance') {
+      const sheet = await this.actionSheet.create({
+        header: 'Apariencia',
+        buttons: [
+          {
+            text: 'Oscuro',
+            icon: 'moon-outline',
+            handler: () => this.themeService.setTheme('dark')
+          },
+          {
+            text: 'Claro',
+            icon: 'sunny-outline',
+            handler: () => this.themeService.setTheme('light')
+          },
+          {
+            text: 'Sistema',
+            icon: 'phone-portrait-outline',
+            handler: () => this.themeService.setTheme('system')
+          },
+          { text: 'Cancelar', role: 'cancel' }
+        ]
+      });
+      await sheet.present();
+      return;
+    }
     console.log('Setting tapped:', action);
-    // TODO: conectar con navegación/servicios reales
   }
 
   signOut() {

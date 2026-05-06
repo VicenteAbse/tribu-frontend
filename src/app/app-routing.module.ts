@@ -26,6 +26,14 @@ const routes: Routes = [
   {
     path: 'create-group',
     loadChildren: () => import('./create-group/create-group.module').then(m => m.CreateGroupPageModule)
+  },
+  {
+    path: 'edit-profile',
+    loadChildren: () => import('./edit-profile/edit-profile.module').then(m => m.EditProfilePageModule)
+  },
+  {
+    path: 'group-admin/:id',
+    loadChildren: () => import('./group-admin/group-admin.module').then(m => m.GroupAdminPageModule)
   }
 ];
 

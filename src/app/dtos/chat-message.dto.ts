@@ -1,3 +1,5 @@
+export type MessageType = 'text' | 'event';
+
 export interface ChatMessageDto {
   id: number;
   senderId: number;
@@ -5,7 +7,11 @@ export interface ChatMessageDto {
   text: string;
   time: string;
   isOwn: boolean;
-  dateSeparator?: string; // si está presente, se muestra un separador de fecha encima
+  dateSeparator?: string;
+  type?: MessageType;
+  eventTitle?: string;
+  eventDate?: string;
+  eventLocation?: string;
 }
 
 export interface ChatGroupInfoDto {

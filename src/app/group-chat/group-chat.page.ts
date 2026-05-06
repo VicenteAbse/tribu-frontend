@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonContent } from '@ionic/angular';
+import { IonContent, NavController } from '@ionic/angular';
 import { ChatGroupInfoDto, ChatMessageDto } from '../dtos/chat-message.dto';
 
 const CHAT_GROUPS: Record<number, ChatGroupInfoDto> = {
@@ -23,6 +23,7 @@ const CHAT_MESSAGES: Record<number, ChatMessageDto[]> = {
     { id: 6,  senderId: 0, senderName: 'Tú',            text: 'Perfecto, yo llevo el mapa por si acaso', time: '8:17', isOwn: true },
     { id: 7,  senderId: 3, senderName: 'Carlos López',  text: 'Yo llevo snacks para todos 🍫', time: '9:30', isOwn: false, dateSeparator: 'Hoy' },
     { id: 8,  senderId: 2, senderName: 'Ana García',    text: '¡El sábado salimos a las 8! No olviden el agua 💧', time: '10:42', isOwn: false },
+    { id: 9,  senderId: 2, senderName: 'Ana García',    text: 'Evento creado por Ana García', time: '11:00', isOwn: false, type: 'event', eventTitle: 'Taller de Foto en Ruta', eventDate: 'Sáb 17 Mayo · 9:00 AM', eventLocation: 'Parque Mapocho' },
   ],
   2: [
     { id: 1,  senderId: 5, senderName: 'Sofía Herrera', text: '¿Todos terminaron el libro?', time: '19:00', isOwn: false, dateSeparator: 'Lunes' },
@@ -39,6 +40,7 @@ const CHAT_MESSAGES: Record<number, ChatMessageDto[]> = {
     { id: 4,  senderId: 0, senderName: 'Tú',           text: '¡Me apunto! Llevo la 50mm', time: '18:20', isOwn: true },
     { id: 5,  senderId: 10, senderName: 'Rafael Díaz', text: 'Yo igual, nos vemos el domingo 🤙', time: '18:35', isOwn: false },
     { id: 6,  senderId: 8, senderName: 'Tomás Reyes',  text: 'Subí las fotos de ayer al álbum compartido 📷', time: '9:00', isOwn: false, dateSeparator: 'Hoy' },
+    { id: 7,  senderId: 8, senderName: 'Tomás Reyes',  text: 'Evento creado por Tomás Reyes', time: '9:10', isOwn: false, type: 'event', eventTitle: 'Salida Nocturna', eventDate: 'Vie 16 Mayo · 9:00 PM', eventLocation: 'Barrio Italia' },
   ],
   4: [
     { id: 1,  senderId: 11, senderName: 'Carlos M.',   text: 'Mañana: ruta por el parque central, 6:30 AM ⏰', time: '21:00', isOwn: false, dateSeparator: 'Ayer' },
@@ -77,15 +79,17 @@ export class GroupChatPage implements OnInit, AfterViewInit {
   group: ChatGroupInfoDto | null = null;
   messages: ChatMessageDto[] = [];
   newMessage = '';
+  pinnedDismissed = false;
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private navCtrl: NavController
   ) {}
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.group   = CHAT_GROUPS[id]   ?? null;
+    this.group    = CHAT_GROUPS[id]   ?? null;
     this.messages = [...(CHAT_MESSAGES[id] ?? [])];
   }
 
@@ -93,8 +97,18 @@ export class GroupChatPage implements OnInit, AfterViewInit {
     this.scrollToBottom();
   }
 
+  get textMessages(): ChatMessageDto[] {
+    return this.messages.filter(m => m.type !== 'event');
+  }
+
+  get pinnedEvent(): ChatMessageDto | null {
+    if (this.pinnedDismissed) return null;
+    const events = this.messages.filter(m => m.type === 'event');
+    return events.length > 0 ? events[events.length - 1] : null;
+  }
+
   goBack() {
-    this.router.navigate(['/tabs/my-groups']);
+    this.navCtrl.back();
   }
 
   goToGroupDetail() {
