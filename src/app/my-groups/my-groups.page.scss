@@ -1,0 +1,297 @@
+// ── Header ────────────────────────────────────
+.my-groups-header {
+
+  ion-toolbar {
+    --background: #0f0c29;
+    --border-color: transparent;
+  }
+
+  .search-toolbar {
+    --background: #0f0c29;
+    --padding-start: 0;
+    --padding-end: 0;
+    padding: 0 16px 10px;
+  }
+}
+
+.header-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #6C63FF;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  padding: 0 5px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.header-btn {
+  --color: rgba(255, 255, 255, 0.6);
+  font-size: 22px;
+}
+
+// ── Search bar ────────────────────────────────
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 0 12px;
+  height: 42px;
+  gap: 8px;
+}
+
+.search-icon {
+  font-size: 17px;
+  color: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #fff;
+  caret-color: #6C63FF;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.clear-icon {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+// ── Content ───────────────────────────────────
+.my-groups-content {
+  --background: #0f0c29;
+}
+
+// ── List y secciones ──────────────────────────
+.groups-list {
+  padding: 6px 0 100px;
+}
+
+.section {
+  margin-bottom: 4px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 16px 16px 8px;
+
+  ion-icon {
+    font-size: 14px;
+  }
+
+  span:not(.section-count) {
+    flex: 1;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+  }
+}
+
+.section-count {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 20px;
+}
+
+.creator-header {
+  ion-icon, span:not(.section-count) { color: #F7B731; }
+  .section-count { background: rgba(247, 183, 49, 0.15); color: #F7B731; }
+}
+
+.admin-header {
+  ion-icon, span:not(.section-count) { color: #a09bff; }
+  .section-count { background: rgba(108, 99, 255, 0.15); color: #a09bff; }
+}
+
+.member-header {
+  ion-icon, span:not(.section-count) { color: rgba(255, 255, 255, 0.4); }
+  .section-count { background: rgba(255, 255, 255, 0.07); color: rgba(255, 255, 255, 0.4); }
+}
+
+.group-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:active {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+// ── Avatar ────────────────────────────────────
+.avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.group-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: -0.5px;
+}
+
+// ── Role dots ─────────────────────────────────
+.role-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #0f0c29;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  ion-icon { font-size: 9px; color: #fff; }
+}
+
+.creator-dot { background: #F7B731; }
+.admin-dot   { background: #6C63FF; }
+
+// ── Item body ─────────────────────────────────
+.item-body {
+  flex: 1;
+  min-width: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 10px;
+
+  &.no-border {
+    border-bottom: none;
+  }
+}
+
+.item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.group-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  margin-right: 8px;
+}
+
+.msg-time {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+
+  &.time-unread {
+    color: #6C63FF;
+    font-weight: 600;
+  }
+}
+
+.item-bottom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.last-message {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &.msg-muted {
+    color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.sender {
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 600;
+}
+
+// ── Unread badge ──────────────────────────────
+.unread-badge {
+  flex-shrink: 0;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 11px;
+  background: #6C63FF;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+}
+
+// ── Empty state ───────────────────────────────
+.empty-search {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 32px;
+  gap: 12px;
+
+  ion-icon {
+    font-size: 52px;
+    color: rgba(255, 255, 255, 0.15);
+  }
+
+  p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.3);
+    text-align: center;
+    margin: 0;
+  }
+}
+
+// ── FAB ───────────────────────────────────────
+.explore-fab {
+  --background: #6C63FF;
+  --background-activated: #5a54d4;
+  --box-shadow: 0 6px 24px rgba(108, 99, 255, 0.5);
+}

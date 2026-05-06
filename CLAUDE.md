@@ -19,38 +19,65 @@ Este proyecto usa **NgModule-based architecture**. Los componentes **nunca** deb
 ## Estructura de carpetas relevante
 ```
 src/app/
+├── dtos/                         # Todos los DTOs centralizados aquí
+│   ├── login.dto.ts              # { email, password }
+│   ├── register.dto.ts           # { name, email, password }
+│   ├── group.dto.ts              # { id, name, description, category, memberCount, distance, backgroundColor, tags }
+│   ├── group-detail.dto.ts       # extends GroupDto + { longDescription, location, nextEvent, createdBy, members[] }
+│   ├── my-group.dto.ts           # GroupRole='creator'|'admin'|'member' + MyGroupDto (role reemplaza isAdmin)
+│   ├── chat-message.dto.ts       # ChatMessageDto + ChatGroupInfoDto
+│   ├── create-group.dto.ts       # JoinPolicy='open'|'approval' + CreateGroupDto
+│   └── user-profile.dto.ts       # UserStatsDto + UserProfileDto
 ├── auth/                         # Módulo de autenticación
-│   ├── dtos/
-│   │   ├── login.dto.ts          # { email, password }
-│   │   └── register.dto.ts       # { name, email, password }
-│   ├── login/                    # Pantalla de login
-│   ├── register/                 # Pantalla de registro
+│   ├── login/
+│   ├── register/
 │   ├── auth-routing.module.ts
 │   └── auth.module.ts
-├── discovery/                    # Pantalla principal (swipe de grupos)
-│   ├── dtos/
-│   │   └── group.dto.ts          # { id, name, description, category, memberCount, distance, backgroundColor, tags }
+├── discovery/                    # Pantalla principal (swipe de grupos estilo Tinder)
 │   ├── discovery-routing.module.ts
 │   ├── discovery.module.ts
-│   ├── discovery.page.ts         # Lógica de swipe con GestureController
+│   ├── discovery.page.ts         # GestureController + movedPx guard para tap vs swipe
 │   ├── discovery.page.html
 │   └── discovery.page.scss
+├── group-chat/                   # Chat del grupo (pantalla completa, sin tab bar)
+│   ├── group-chat-routing.module.ts
+│   ├── group-chat.module.ts
+│   ├── group-chat.page.ts        # IonContent scroll + sendMessage dummy
+│   ├── group-chat.page.html
+│   └── group-chat.page.scss
+├── group-detail/                 # Detalle de grupo (pantalla completa, sin tab bar)
+│   ├── group-detail-routing.module.ts
+│   ├── group-detail.module.ts
+│   ├── group-detail.page.ts      # Lee :id de ActivatedRoute, busca en mapa de datos dummy
+│   ├── group-detail.page.html
+│   └── group-detail.page.scss
 ├── tabs/                         # Shell de tabs (post-login)
 │   ├── tabs.page.html            # Tab bar: Explorar / Mis grupos / Perfil
 │   └── tabs.page.scss
-├── tab2/, tab3/                  # Placeholders: Mis grupos, Perfil
+├── my-groups/                    # Pantalla "Mis grupos" (listado tipo WhatsApp)
+│   ├── my-groups-routing.module.ts
+│   ├── my-groups.module.ts
+│   ├── my-groups.page.ts         # byRole() → createdGroups / adminGroups / memberGroups; búsqueda por sección
+│   ├── my-groups.page.html
+│   └── my-groups.page.scss
+├── profile/                      # Pantalla de perfil del usuario
+│   ├── profile-routing.module.ts
+│   ├── profile.module.ts
+│   ├── profile.page.ts           # heroGradient, settingsSections, signOut()
+│   ├── profile.page.html
+│   └── profile.page.scss
 └── app-routing.module.ts         # Ruta raíz → /auth/login
 ```
 
 ## Enrutamiento
 - `/` → redirige a `/auth`
-- `/auth` → redirige a `/auth/login`
 - `/auth/login` → LoginPage
 - `/auth/register` → RegisterPage
-- `/tabs` → tabs shell (post-login)
-- `/tabs/discovery` → DiscoveryPage (tab principal)
-- `/tabs/tab2` → placeholder Mis grupos
-- `/tabs/tab3` → placeholder Perfil
+- `/tabs/discovery` → DiscoveryPage (tab principal, swipe de grupos)
+- `/tabs/my-groups` → MyGroupsPage (listado de grupos con chat)
+- `/tabs/profile` → ProfilePage (perfil del usuario, ajustes, cerrar sesión)
+- `/group-chat/:id` → GroupChatPage (chat del grupo; header clickeable navega a detalle)
+- `/group-detail/:id` → GroupDetailPage (pantalla completa, fuera del shell de tabs)
 
 ## Convenciones de código
 - Plantillas HTML: usar nueva sintaxis de control flow de Angular (`@if`, `@for`, `@switch`) en lugar de directivas (`*ngIf`, `*ngFor`)

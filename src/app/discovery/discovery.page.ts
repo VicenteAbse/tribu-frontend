@@ -6,8 +6,9 @@ import {
   QueryList,
   ViewChildren
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { GestureController, GestureDetail } from '@ionic/angular';
-import { GroupDto } from './dtos/group.dto';
+import { GroupDto } from '../dtos/group.dto';
 
 const GROUPS: GroupDto[] = [
   {
@@ -60,8 +61,12 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy {
   isAnimating = false;
 
   private activeGesture?: ReturnType<GestureController['create']>;
+  private movedPx = 0;
 
-  constructor(private gestureCtrl: GestureController) {}
+  constructor(
+    private gestureCtrl: GestureController,
+    private router: Router
+  ) {}
 
   ngAfterViewInit() {
     this.cardElements.changes.subscribe(() => this.setupGesture());
@@ -92,12 +97,14 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy {
       gestureName: 'card-swipe',
       threshold: 10,
       onStart: () => {
+        this.movedPx = 0;
         topEl.style.transition = 'none';
       },
       onMove: (ev: GestureDetail) => {
+        this.movedPx = Math.abs(ev.deltaX);
         const rotate = ev.deltaX * 0.06;
         topEl.style.transform = `translateX(${ev.deltaX}px) rotate(${rotate}deg)`;
-        const progress = Math.min(Math.abs(ev.deltaX) / THRESHOLD, 1);
+        const progress = Math.min(this.movedPx / THRESHOLD, 1);
         this.likeOpacity = ev.deltaX > 0 ? progress : 0;
         this.nopeOpacity = ev.deltaX < 0 ? progress : 0;
       },
@@ -109,7 +116,10 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy {
         } else {
           topEl.style.transition = 'transform 0.35s ease';
           topEl.style.transform = '';
-          setTimeout(() => (topEl.style.transition = ''), 350);
+          setTimeout(() => {
+            topEl.style.transition = '';
+            this.movedPx = 0;
+          }, 350);
         }
       }
     });
@@ -127,6 +137,7 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy {
     setTimeout(() => {
       this.currentIndex++;
       this.isAnimating = false;
+      this.movedPx = 0;
     }, 390);
   }
 
@@ -142,6 +153,12 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy {
     const cards = this.cardElements.toArray();
     if (!cards.length) return;
     this.flyOut(cards[0].nativeElement, true);
+  }
+
+  openDetail(group: GroupDto) {
+    // Solo navegar si el usuario no estaba arrastrando la tarjeta
+    if (this.movedPx > 10) return;
+    this.router.navigate(['/group-detail', group.id]);
   }
 
   getCategoryIcon(category: string): string {

@@ -227,10 +227,18 @@
   }
 }
 
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .tags-row {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  flex: 1;
 }
 
 .tag {
@@ -239,6 +247,21 @@
   background: rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   padding: 3px 10px;
+}
+
+.see-more {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  ion-icon {
+    font-size: 13px;
+  }
 }
 
 // ── Action buttons ────────────────────────────

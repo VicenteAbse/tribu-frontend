@@ -1,0 +1,162 @@
+<ion-header class="create-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button class="nav-btn" (click)="goBack()">
+        <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="header-title">Nuevo grupo</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="create-content" [fullscreen]="false">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    <!-- ── Imágenes ── -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">Imágenes del grupo</h3>
+        <span class="section-hint">{{ filledSlots }}/{{ 3 }} · Toca para elegir color</span>
+      </div>
+
+      <div class="image-slots">
+        @for (slot of imageSlots; track $index; let i = $index) {
+          <div
+            class="image-slot"
+            [class.filled]="!!slot"
+            [style.background-color]="slot ?? 'transparent'"
+            (click)="cycleSlotColor(i)">
+
+            @if (!slot) {
+              <div class="slot-empty">
+                <ion-icon name="image-outline"></ion-icon>
+                <span>Agregar</span>
+              </div>
+            } @else {
+              <button class="slot-clear" type="button" (click)="clearSlot(i, $event)">
+                <ion-icon name="close-circle"></ion-icon>
+              </button>
+              <ion-icon name="color-palette-outline" class="slot-palette-icon"></ion-icon>
+            }
+
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ── Nombre ── -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">Nombre del grupo</h3>
+        <span class="section-hint">{{ nameLen }}/50</span>
+      </div>
+
+      <div class="field-box" [class.field-error]="nameCtrl.invalid && nameCtrl.touched">
+        <ion-icon name="people-outline" class="field-icon"></ion-icon>
+        <input
+          formControlName="name"
+          type="text"
+          class="field-input"
+          placeholder="Ej: Senderismo Urbano"
+          maxlength="50" />
+      </div>
+
+      @if (nameCtrl.invalid && nameCtrl.touched) {
+        <p class="error-msg">
+          @if (nameCtrl.errors?.['required']) { El nombre es obligatorio. }
+          @else if (nameCtrl.errors?.['minlength']) { Mínimo 3 caracteres. }
+        </p>
+      }
+    </div>
+
+    <!-- ── Descripción ── -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">Descripción</h3>
+        <span class="section-hint">{{ descLen }}/300</span>
+      </div>
+
+      <div class="field-box textarea-box" [class.field-error]="descCtrl.invalid && descCtrl.touched">
+        <textarea
+          formControlName="description"
+          class="field-input field-textarea"
+          placeholder="Cuéntales a los demás de qué trata tu grupo, qué hacen, cuándo se reúnen..."
+          maxlength="300"
+          rows="4">
+        </textarea>
+      </div>
+
+      @if (descCtrl.invalid && descCtrl.touched) {
+        <p class="error-msg">
+          @if (descCtrl.errors?.['required']) { La descripción es obligatoria. }
+          @else if (descCtrl.errors?.['minlength']) { Mínimo 10 caracteres. }
+        </p>
+      }
+    </div>
+
+    <!-- ── Categoría ── -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">Categoría</h3>
+      </div>
+
+      <div class="chips-wrap">
+        @for (cat of categories; track cat) {
+          <button
+            type="button"
+            class="cat-chip"
+            [class.cat-selected]="catCtrl.value === cat"
+            (click)="selectCategory(cat)">
+            {{ cat }}
+          </button>
+        }
+      </div>
+
+      @if (catCtrl.invalid && catCtrl.touched) {
+        <p class="error-msg">Selecciona una categoría.</p>
+      }
+    </div>
+
+    <!-- ── Política de acceso ── -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">Política de acceso</h3>
+      </div>
+
+      <div class="policy-cards">
+        @for (p of joinPolicies; track p.value) {
+          <div
+            class="policy-card"
+            [class.policy-selected]="policyCtrl.value === p.value"
+            (click)="setJoinPolicy(p.value)">
+
+            <div class="policy-icon-wrap">
+              <ion-icon [name]="p.icon"></ion-icon>
+            </div>
+            <div class="policy-text">
+              <span class="policy-label">{{ p.label }}</span>
+              <span class="policy-sub">{{ p.sub }}</span>
+            </div>
+            <div class="policy-radio">
+              <div class="radio-dot" [class.radio-active]="policyCtrl.value === p.value"></div>
+            </div>
+
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ── Submit ── -->
+    <div class="submit-section">
+      <ion-button
+        expand="block"
+        type="submit"
+        class="submit-btn"
+        [disabled]="form.invalid">
+        <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+        Crear grupo
+      </ion-button>
+    </div>
+
+  </form>
+</ion-content>

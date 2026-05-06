@@ -1,0 +1,312 @@
+// ── Header ────────────────────────────────────
+.create-header ion-toolbar {
+  --background: #0f0c29;
+  --border-color: rgba(255, 255, 255, 0.07);
+}
+
+.nav-btn { --color: rgba(255, 255, 255, 0.7); font-size: 22px; }
+
+.header-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+}
+
+// ── Content ───────────────────────────────────
+.create-content {
+  --background: #0f0c29;
+}
+
+// ── Sections ──────────────────────────────────
+.form-section {
+  padding: 20px 20px 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.section-hint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+// ── Image slots ───────────────────────────────
+.image-slots {
+  display: flex;
+  gap: 12px;
+}
+
+.image-slot {
+  flex: 1;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.15s;
+
+  &:active { transform: scale(0.96); }
+
+  &.filled {
+    border-style: solid;
+    border-color: transparent;
+  }
+}
+
+.slot-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+
+  ion-icon {
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.25);
+  }
+
+  span {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.25);
+    font-weight: 500;
+  }
+}
+
+.slot-clear {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.45);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+
+  ion-icon {
+    font-size: 18px;
+    color: #fff;
+  }
+}
+
+.slot-palette-icon {
+  font-size: 28px;
+  color: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
+// ── Field box ─────────────────────────────────
+.field-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 0 14px;
+  min-height: 50px;
+  transition: border-color 0.2s;
+
+  &:focus-within {
+    border-color: #6C63FF;
+  }
+
+  &.field-error {
+    border-color: #e53935;
+  }
+
+  &.textarea-box {
+    align-items: flex-start;
+    padding: 12px 14px;
+  }
+}
+
+.field-icon {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.field-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  color: #fff;
+  caret-color: #6C63FF;
+
+  &::placeholder { color: rgba(255, 255, 255, 0.22); }
+}
+
+.field-textarea {
+  resize: none;
+  line-height: 1.55;
+  padding-top: 2px;
+  width: 100%;
+}
+
+.error-msg {
+  font-size: 12px;
+  color: #e57373;
+  margin: 6px 4px 0;
+}
+
+// ── Category chips ────────────────────────────
+.chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cat-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 7px 16px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s;
+
+  &:active { transform: scale(0.96); }
+
+  &.cat-selected {
+    background: rgba(108, 99, 255, 0.2);
+    border-color: #6C63FF;
+    color: #a09bff;
+    font-weight: 700;
+  }
+}
+
+// ── Join policy cards ─────────────────────────
+.policy-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.policy-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.18s;
+
+  &:active { transform: scale(0.98); }
+
+  &.policy-selected {
+    background: rgba(108, 99, 255, 0.12);
+    border-color: #6C63FF;
+  }
+}
+
+.policy-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  ion-icon {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .policy-selected & {
+    background: rgba(108, 99, 255, 0.25);
+
+    ion-icon { color: #a09bff; }
+  }
+}
+
+.policy-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.policy-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+
+  .policy-selected & { color: #fff; }
+}
+
+.policy-sub {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+  line-height: 1.4;
+}
+
+.policy-radio {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.18s;
+
+  .policy-selected & { border-color: #6C63FF; }
+}
+
+.radio-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.18s;
+
+  &.radio-active { background: #6C63FF; }
+}
+
+// ── Submit ────────────────────────────────────
+.submit-section {
+  padding: 28px 20px calc(32px + env(safe-area-inset-bottom));
+}
+
+.submit-btn {
+  --background: linear-gradient(90deg, #6C63FF, #FF6584);
+  --background-activated: #5a54d4;
+  --border-radius: 16px;
+  --box-shadow: 0 6px 24px rgba(108, 99, 255, 0.35);
+  --color: #fff;
+  height: 54px;
+  font-size: 16px;
+  font-weight: 700;
+}

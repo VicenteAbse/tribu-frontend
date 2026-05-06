@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoginDto } from '../dtos/login.dto';
+import { LoginDto } from '../../dtos/login.dto';
 
 @Component({
   selector: 'app-login',

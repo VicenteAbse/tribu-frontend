@@ -14,6 +14,18 @@ const routes: Routes = [
   {
     path: 'tabs',
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
+  },
+  {
+    path: 'group-detail/:id',
+    loadChildren: () => import('./group-detail/group-detail.module').then(m => m.GroupDetailPageModule)
+  },
+  {
+    path: 'group-chat/:id',
+    loadChildren: () => import('./group-chat/group-chat.module').then(m => m.GroupChatPageModule)
+  },
+  {
+    path: 'create-group',
+    loadChildren: () => import('./create-group/create-group.module').then(m => m.CreateGroupPageModule)
   }
 ];
 

@@ -1,0 +1,136 @@
+<ion-header class="my-groups-header" [translucent]="false">
+  <ion-toolbar>
+    <ion-title>
+      <span class="header-title">Mis grupos</span>
+      @if (totalUnread > 0) {
+        <span class="header-badge">{{ totalUnread }}</span>
+      }
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button class="header-btn">
+        <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar class="search-toolbar">
+    <div class="search-wrapper">
+      <ion-icon name="search-outline" class="search-icon"></ion-icon>
+      <input
+        class="search-input"
+        type="text"
+        placeholder="Buscar grupo o mensaje..."
+        [(ngModel)]="searchQuery" />
+      @if (searchQuery) {
+        <ion-icon name="close-circle" class="clear-icon" (click)="searchQuery = ''"></ion-icon>
+      }
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="my-groups-content" [fullscreen]="false">
+
+  @if (hasAnyResults) {
+    <div class="groups-list">
+
+      <!-- ── Creados por mí ── -->
+      @if (createdGroups.length > 0) {
+        <div class="section">
+          <div class="section-header creator-header">
+            <ion-icon name="ribbon-outline"></ion-icon>
+            <span>Creados por mí</span>
+            <span class="section-count">{{ createdGroups.length }}</span>
+          </div>
+          @for (group of createdGroups; track group.id; let last = $last) {
+            <ng-container *ngTemplateOutlet="groupItem; context: { group, last }"></ng-container>
+          }
+        </div>
+      }
+
+      <!-- ── Grupos que administro ── -->
+      @if (adminGroups.length > 0) {
+        <div class="section">
+          <div class="section-header admin-header">
+            <ion-icon name="shield-outline"></ion-icon>
+            <span>Grupos que administro</span>
+            <span class="section-count">{{ adminGroups.length }}</span>
+          </div>
+          @for (group of adminGroups; track group.id; let last = $last) {
+            <ng-container *ngTemplateOutlet="groupItem; context: { group, last }"></ng-container>
+          }
+        </div>
+      }
+
+      <!-- ── Solo soy miembro ── -->
+      @if (memberGroups.length > 0) {
+        <div class="section">
+          <div class="section-header member-header">
+            <ion-icon name="people-outline"></ion-icon>
+            <span>Grupos en los que participo</span>
+            <span class="section-count">{{ memberGroups.length }}</span>
+          </div>
+          @for (group of memberGroups; track group.id; let last = $last) {
+            <ng-container *ngTemplateOutlet="groupItem; context: { group, last }"></ng-container>
+          }
+        </div>
+      }
+
+    </div>
+  } @else {
+    <div class="empty-search">
+      <ion-icon name="search-outline"></ion-icon>
+      <p>No se encontraron grupos con "{{ searchQuery }}"</p>
+    </div>
+  }
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button class="explore-fab" (click)="goToCreateGroup()">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>
+
+<!-- Template reutilizable para cada ítem de grupo -->
+<ng-template #groupItem let-group="group" let-last="last">
+  <div class="group-item" (click)="openGroup(group)">
+
+    <div class="avatar-wrapper">
+      <div class="group-avatar" [style.background-color]="group.backgroundColor">
+        {{ group.name[0] }}
+      </div>
+      @if (group.role === 'creator') {
+        <span class="role-dot creator-dot">
+          <ion-icon name="ribbon"></ion-icon>
+        </span>
+      } @else if (group.role === 'admin') {
+        <span class="role-dot admin-dot">
+          <ion-icon name="shield"></ion-icon>
+        </span>
+      }
+    </div>
+
+    <div class="item-body" [class.no-border]="last">
+      <div class="item-top">
+        <span class="group-name">{{ group.name }}</span>
+        <span class="msg-time" [class.time-unread]="group.unreadCount > 0">
+          {{ group.lastMessageTime }}
+        </span>
+      </div>
+      <div class="item-bottom">
+        <p class="last-message" [class.msg-muted]="group.unreadCount === 0">
+          @if (group.lastMessageSender !== 'Tú') {
+            <span class="sender">{{ group.lastMessageSender }}: </span>
+          }
+          {{ group.lastMessageText }}
+        </p>
+        @if (group.unreadCount > 0) {
+          <span class="unread-badge">
+            {{ group.unreadCount > 99 ? '99+' : group.unreadCount }}
+          </span>
+        }
+      </div>
+    </div>
+
+  </div>
+</ng-template>

@@ -52,8 +52,8 @@
                 <ion-icon [name]="getCategoryIcon(group.category)"></ion-icon>
               </div>
 
-              <!-- Info de la carta -->
-              <div class="card-info">
+              <!-- Info de la carta (tap para ver detalle) -->
+              <div class="card-info" (click)="openDetail(group)">
                 <div class="card-header-info">
                   <span class="category-badge">{{ group.category }}</span>
                 </div>
@@ -71,10 +71,15 @@
                   </div>
                 </div>
 
-                <div class="tags-row">
-                  @for (tag of group.tags; track tag) {
-                    <span class="tag"># {{ tag }}</span>
-                  }
+                <div class="card-footer">
+                  <div class="tags-row">
+                    @for (tag of group.tags; track tag) {
+                      <span class="tag"># {{ tag }}</span>
+                    }
+                  </div>
+                  <span class="see-more">
+                    Ver más <ion-icon name="chevron-forward-outline"></ion-icon>
+                  </span>
                 </div>
               </div>
 

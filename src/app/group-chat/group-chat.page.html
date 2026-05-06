@@ -1,0 +1,110 @@
+@if (group) {
+
+  <ion-header class="chat-header">
+    <ion-toolbar>
+
+      <ion-buttons slot="start">
+        <ion-button class="nav-btn" (click)="goBack()">
+          <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+
+      <!-- Nombre del grupo clickeable → detalle -->
+      <div class="header-group" (click)="goToGroupDetail()">
+        <div class="header-avatar" [style.background-color]="group.backgroundColor">
+          {{ group.name[0] }}
+        </div>
+        <div class="header-info">
+          <span class="header-name">{{ group.name }}</span>
+          <span class="header-sub">{{ group.memberCount }} miembros · toca para ver detalles</span>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="header-chevron"></ion-icon>
+      </div>
+
+      <ion-buttons slot="end">
+        <ion-button class="nav-btn">
+          <ion-icon name="ellipsis-vertical-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="chat-content" [fullscreen]="false">
+    <div class="messages-container">
+
+      @for (msg of messages; track msg.id) {
+
+        <!-- Separador de fecha -->
+        @if (msg.dateSeparator) {
+          <div class="date-separator">
+            <span>{{ msg.dateSeparator }}</span>
+          </div>
+        }
+
+        <!-- Fila del mensaje -->
+        <div class="msg-row" [class.own-row]="msg.isOwn">
+
+          <!-- Avatar del emisor (solo mensajes ajenos) -->
+          @if (!msg.isOwn) {
+            <div class="msg-avatar" [style.background-color]="group.backgroundColor">
+              {{ msg.senderName[0] }}
+            </div>
+          }
+
+          <div class="bubble-col" [class.own-col]="msg.isOwn">
+            <!-- Nombre del emisor (solo mensajes ajenos) -->
+            @if (!msg.isOwn) {
+              <span class="sender-name" [style.color]="group.backgroundColor">
+                {{ msg.senderName }}
+              </span>
+            }
+
+            <!-- Burbuja -->
+            <div class="bubble" [class.own-bubble]="msg.isOwn">
+              <p class="bubble-text">{{ msg.text }}</p>
+              <span class="bubble-time">{{ msg.time }}</span>
+            </div>
+          </div>
+
+        </div>
+      }
+
+    </div>
+  </ion-content>
+
+  <!-- Barra de entrada -->
+  <ion-footer class="chat-footer">
+    <div class="input-bar">
+      <ion-button fill="clear" class="attach-btn">
+        <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+
+      <div class="input-wrapper">
+        <input
+          class="msg-input"
+          type="text"
+          placeholder="Escribe un mensaje..."
+          [(ngModel)]="newMessage"
+          (keyup.enter)="sendMessage()" />
+      </div>
+
+      <ion-button
+        fill="clear"
+        class="send-btn"
+        (click)="sendMessage()"
+        [disabled]="!newMessage.trim()">
+        <ion-icon name="send" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+  </ion-footer>
+
+} @else {
+  <ion-content>
+    <div class="not-found">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <p>Grupo no encontrado</p>
+      <ion-button fill="clear" (click)="goBack()">Volver</ion-button>
+    </div>
+  </ion-content>
+}

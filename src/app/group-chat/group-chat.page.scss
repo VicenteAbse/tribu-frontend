@@ -1,0 +1,243 @@
+// ── Header ────────────────────────────────────
+.chat-header ion-toolbar {
+  --background: #0f0c29;
+  --border-color: rgba(255, 255, 255, 0.07);
+}
+
+.nav-btn {
+  --color: rgba(255, 255, 255, 0.7);
+  font-size: 22px;
+}
+
+.header-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  padding: 6px 4px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.15s;
+
+  &:active {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.header-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.9);
+  flex-shrink: 0;
+}
+
+.header-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.header-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-sub {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 1px;
+}
+
+.header-chevron {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
+// ── Content ───────────────────────────────────
+.chat-content {
+  --background: #12102b;
+}
+
+.messages-container {
+  padding: 12px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+// ── Date separator ────────────────────────────
+.date-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0 8px;
+
+  span {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 3px 14px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+}
+
+// ── Message row ───────────────────────────────
+.msg-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+  margin-bottom: 4px;
+
+  &.own-row {
+    flex-direction: row-reverse;
+  }
+}
+
+// ── Small avatar (others) ─────────────────────
+.msg-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.9);
+  flex-shrink: 0;
+  margin-bottom: 2px;
+}
+
+// ── Bubble column ─────────────────────────────
+.bubble-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 72%;
+
+  &.own-col {
+    align-items: flex-end;
+  }
+}
+
+.sender-name {
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 3px;
+  padding-left: 4px;
+}
+
+// ── Bubble ────────────────────────────────────
+.bubble {
+  background: #1e1b42;
+  border-radius: 18px 18px 18px 4px;
+  padding: 9px 12px 7px;
+  position: relative;
+
+  &.own-bubble {
+    background: #6C63FF;
+    border-radius: 18px 18px 4px 18px;
+  }
+}
+
+.bubble-text {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.92);
+  margin: 0 0 4px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.bubble-time {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+  display: block;
+  text-align: right;
+
+  .own-bubble & {
+    color: rgba(255, 255, 255, 0.55);
+  }
+}
+
+// ── Footer / input bar ────────────────────────
+.chat-footer {
+  --background: transparent;
+  box-shadow: none;
+  border: none;
+}
+
+.input-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+  background: #0f0c29;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.attach-btn {
+  --color: rgba(255, 255, 255, 0.4);
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.input-wrapper {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  padding: 0 14px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.msg-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #fff;
+  caret-color: #6C63FF;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.28);
+  }
+}
+
+.send-btn {
+  --color: #6C63FF;
+  font-size: 22px;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+
+  &[disabled] {
+    --color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+// ── Not found ─────────────────────────────────
+.not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.3);
+
+  ion-icon { font-size: 56px; }
+}

@@ -1,0 +1,259 @@
+.profile-content {
+  --background: #0f0c29;
+}
+
+// ── Hero ──────────────────────────────────────
+.hero {
+  padding: 52px 20px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 8px 0 20px;
+}
+
+.hero-brand {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.settings-btn {
+  --color: rgba(255, 255, 255, 0.5);
+  font-size: 22px;
+}
+
+// ── Avatar ────────────────────────────────────
+.avatar-wrap {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 800;
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 3px solid rgba(255, 255, 255, 0.15);
+}
+
+.camera-btn {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #1e1b42;
+  border: 2px solid #0f0c29;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+// ── Profile text ──────────────────────────────
+.profile-name {
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 4px;
+}
+
+.profile-username {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0 0 12px;
+  font-weight: 500;
+}
+
+.profile-bio {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0 0 14px;
+  line-height: 1.55;
+  max-width: 300px;
+}
+
+.location-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+
+  ion-icon { font-size: 13px; }
+}
+
+.dot-sep { color: rgba(255, 255, 255, 0.2); }
+
+// ── Stats card ────────────────────────────────
+.stats-card {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  margin: 0 16px 20px;
+  padding: 18px 0;
+}
+
+.stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-sep {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+// ── Content sections ──────────────────────────
+.content-section {
+  margin: 0 16px 16px;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin: 0 0 10px 4px;
+}
+
+// ── Interests ─────────────────────────────────
+.interests-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.interest-chip {
+  font-size: 13px;
+  color: #a09bff;
+  background: rgba(108, 99, 255, 0.12);
+  border: 1px solid rgba(108, 99, 255, 0.25);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-weight: 500;
+}
+
+// ── Settings group ────────────────────────────
+.settings-group {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.15s;
+
+  &:active { background: rgba(255, 255, 255, 0.04); }
+  &.no-border { border-bottom: none; }
+}
+
+.row-icon-box {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 17px; }
+}
+
+.row-label {
+  flex: 1;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+}
+
+.row-value {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.3);
+  margin-right: 2px;
+}
+
+.row-chevron {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+// ── Sign out ──────────────────────────────────
+.signout-wrap {
+  padding: 8px 16px calc(32px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.signout-btn {
+  --color: #e57373;
+  --border-color: rgba(229, 115, 115, 0.35);
+  --background-activated: rgba(229, 115, 115, 0.08);
+  --border-radius: 14px;
+  width: 100%;
+  height: 50px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.app-version {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.18);
+  margin: 0;
+}

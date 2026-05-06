@@ -1,0 +1,103 @@
+<ion-content class="profile-content" [fullscreen]="true">
+
+  <!-- ── Hero ── -->
+  <div class="hero" [style.background]="heroGradient">
+
+    <div class="hero-top-bar">
+      <span class="hero-brand">Trivy</span>
+      <ion-button fill="clear" class="settings-btn">
+        <ion-icon name="settings-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+
+    <div class="avatar-wrap">
+      <div class="avatar" [style.background-color]="profile.avatarColor">
+        {{ profile.initials }}
+      </div>
+      <button class="camera-btn" type="button">
+        <ion-icon name="camera-outline"></ion-icon>
+      </button>
+    </div>
+
+    <h1 class="profile-name">{{ profile.name }}</h1>
+    <p class="profile-username">{{ profile.username }}</p>
+    <p class="profile-bio">{{ profile.bio }}</p>
+
+    <div class="location-row">
+      <ion-icon name="location-outline"></ion-icon>
+      <span>{{ profile.location }}</span>
+      <span class="dot-sep">·</span>
+      <ion-icon name="calendar-outline"></ion-icon>
+      <span>Desde {{ profile.joinedDate }}</span>
+    </div>
+
+  </div>
+
+  <!-- ── Stats ── -->
+  <div class="stats-card">
+    <div class="stat-item">
+      <span class="stat-number">{{ profile.stats.groupsCreated }}</span>
+      <span class="stat-label">Creados</span>
+    </div>
+    <div class="stat-sep"></div>
+    <div class="stat-item">
+      <span class="stat-number">{{ profile.stats.groupsJoined }}</span>
+      <span class="stat-label">Grupos</span>
+    </div>
+    <div class="stat-sep"></div>
+    <div class="stat-item">
+      <span class="stat-number">{{ profile.stats.totalMembers }}</span>
+      <span class="stat-label">Miembros</span>
+    </div>
+  </div>
+
+  <!-- ── Intereses ── -->
+  <div class="content-section">
+    <h3 class="section-title">Mis intereses</h3>
+    <div class="interests-row">
+      @for (interest of profile.interests; track interest) {
+        <span class="interest-chip">{{ interest }}</span>
+      }
+    </div>
+  </div>
+
+  <!-- ── Settings ── -->
+  @for (section of settingsSections; track section.title) {
+    <div class="content-section">
+      <h3 class="section-title">{{ section.title }}</h3>
+      <div class="settings-group">
+        @for (item of section.items; track item.label; let last = $last) {
+          <div class="settings-row" [class.no-border]="last" (click)="onSettingTap(item.action)">
+
+            <div class="row-icon-box" [style.background-color]="item.iconBg + '22'">
+              <ion-icon [name]="item.icon" [style.color]="item.iconBg"></ion-icon>
+            </div>
+
+            <span class="row-label">{{ item.label }}</span>
+
+            @if (item.value) {
+              <span class="row-value">{{ item.value }}</span>
+            }
+
+            <ion-icon name="chevron-forward-outline" class="row-chevron"></ion-icon>
+
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ── Cerrar sesión ── -->
+  <div class="signout-wrap">
+    <ion-button
+      expand="block"
+      fill="outline"
+      class="signout-btn"
+      (click)="signOut()">
+      <ion-icon name="log-out-outline" slot="start"></ion-icon>
+      Cerrar sesión
+    </ion-button>
+    <p class="app-version">Trivy v0.1.0</p>
+  </div>
+
+</ion-content>
