@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
 import { GestureController, GestureDetail } from '@ionic/angular';
 import { GroupDto } from '../dtos/group.dto';
 
-const GROUPS: GroupDto[] = [
+const ALL_GROUPS: GroupDto[] = [
   {
     id: 1,
     name: 'Senderismo Urbano',
@@ -41,9 +41,109 @@ const GROUPS: GroupDto[] = [
     distance: 2.5,
     backgroundColor: '#6C63FF',
     tags: ['fotografía', 'arte', 'ciudad']
+  },
+  {
+    id: 4,
+    name: 'Dev Santiago',
+    description: 'Comunidad de desarrolladores que se reúnen a compartir proyectos, charlas y código.',
+    category: 'Tecnología',
+    memberCount: 47,
+    distance: 0.5,
+    backgroundColor: '#26de81',
+    tags: ['programación', 'tech', 'networking']
+  },
+  {
+    id: 5,
+    name: 'Jazz & Blues Club',
+    description: 'Amantes del jazz y el blues que se juntan a escuchar y tocar música en vivo.',
+    category: 'Música',
+    memberCount: 19,
+    distance: 3.1,
+    backgroundColor: '#A55EEA',
+    tags: ['jazz', 'blues', 'música en vivo']
+  },
+  {
+    id: 6,
+    name: 'Cocina del Mundo',
+    description: 'Cocinamos recetas internacionales juntos y compartimos la mesa. ¡Siempre hay espacio!',
+    category: 'Gastronomía',
+    memberCount: 15,
+    distance: 6.0,
+    backgroundColor: '#FC5C65',
+    tags: ['cocina', 'recetas', 'internacional']
+  },
+  {
+    id: 7,
+    name: 'Yoga & Meditación',
+    description: 'Practicamos yoga y meditación al aire libre para reconectar cuerpo y mente.',
+    category: 'Deporte & Naturaleza',
+    memberCount: 22,
+    distance: 4.5,
+    backgroundColor: '#F7B731',
+    tags: ['yoga', 'mindfulness', 'bienestar']
+  },
+  {
+    id: 8,
+    name: 'Ilustración Digital',
+    description: 'Creamos arte digital, cómics e ilustraciones. Compartimos técnicas y herramientas.',
+    category: 'Arte & Creatividad',
+    memberCount: 28,
+    distance: 8.2,
+    backgroundColor: '#fd9644',
+    tags: ['ilustración', 'digital', 'diseño']
+  },
+  {
+    id: 9,
+    name: 'Podcast Makers',
+    description: 'Aprendemos a crear y producir podcasts desde cero. Comunidad activa y colaborativa.',
+    category: 'Tecnología',
+    memberCount: 11,
+    distance: 12.3,
+    backgroundColor: '#2bcbba',
+    tags: ['podcast', 'producción', 'audio']
+  },
+  {
+    id: 10,
+    name: 'Coro Moderno',
+    description: 'Cantamos juntos música pop, folk y soul. No se necesita experiencia previa.',
+    category: 'Música',
+    memberCount: 34,
+    distance: 1.8,
+    backgroundColor: '#eb3b5a',
+    tags: ['canto', 'coro', 'pop']
+  },
+  {
+    id: 11,
+    name: 'Runners Matutinos',
+    description: 'Corremos juntos cada mañana por el parque. Distintos ritmos, misma energía.',
+    category: 'Deporte & Naturaleza',
+    memberCount: 18,
+    distance: 0.3,
+    backgroundColor: '#45aaf2',
+    tags: ['running', 'mañana', 'salud']
+  },
+  {
+    id: 12,
+    name: 'Cerveza Artesanal',
+    description: 'Degustamos y elaboramos cervezas artesanales. Cada mes un estilo diferente.',
+    category: 'Gastronomía',
+    memberCount: 9,
+    distance: 5.7,
+    backgroundColor: '#f9ca24',
+    tags: ['cerveza', 'artesanal', 'degustación']
   }
 ];
 
+const ALL_CATEGORIES = [
+  'Deporte & Naturaleza',
+  'Arte & Creatividad',
+  'Cultura & Lectura',
+  'Tecnología',
+  'Música',
+  'Gastronomía'
+];
+
+const MAX_DISTANCE_DEFAULT = 20;
 const THRESHOLD = 80;
 
 @Component({
@@ -55,11 +155,21 @@ const THRESHOLD = 80;
 export class DiscoveryPage implements AfterViewInit, OnDestroy {
   @ViewChildren('swipeCard') cardElements!: QueryList<ElementRef>;
 
-  readonly groups: GroupDto[] = GROUPS;
+  readonly allCategories = ALL_CATEGORIES;
+
   currentIndex = 0;
   likeOpacity = 0;
   nopeOpacity = 0;
   isAnimating = false;
+
+  // Active filters
+  selectedCategories: string[] = [];
+  maxDistance = MAX_DISTANCE_DEFAULT;
+
+  // Pending filters (shown inside the modal before applying)
+  filterOpen = false;
+  pendingCategories: string[] = [];
+  pendingDistance = MAX_DISTANCE_DEFAULT;
 
   private activeGesture?: ReturnType<GestureController['create']>;
   private movedPx = 0;
@@ -79,12 +189,72 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy {
     this.activeGesture?.destroy();
   }
 
+  get filteredGroups(): GroupDto[] {
+    return ALL_GROUPS.filter(g => {
+      const catMatch = this.selectedCategories.length === 0 || this.selectedCategories.includes(g.category);
+      const distMatch = g.distance <= this.maxDistance;
+      return catMatch && distMatch;
+    });
+  }
+
   get visibleGroups(): GroupDto[] {
-    return this.groups.slice(this.currentIndex, this.currentIndex + 3);
+    return this.filteredGroups.slice(this.currentIndex, this.currentIndex + 3);
   }
 
   get hasCards(): boolean {
-    return this.currentIndex < this.groups.length;
+    return this.currentIndex < this.filteredGroups.length;
+  }
+
+  get activeFilterCount(): number {
+    let n = 0;
+    if (this.selectedCategories.length > 0) n++;
+    if (this.maxDistance < MAX_DISTANCE_DEFAULT) n++;
+    return n;
+  }
+
+  get filteredCountForPending(): number {
+    return ALL_GROUPS.filter(g => {
+      const catMatch = this.pendingCategories.length === 0 || this.pendingCategories.includes(g.category);
+      const distMatch = g.distance <= this.pendingDistance;
+      return catMatch && distMatch;
+    }).length;
+  }
+
+  readonly distanceFormatter = (v: number) => v < 20 ? `${v}km` : '∞';
+
+  openFilters() {
+    this.pendingCategories = [...this.selectedCategories];
+    this.pendingDistance = this.maxDistance;
+    this.filterOpen = true;
+  }
+
+  togglePendingCategory(cat: string) {
+    const idx = this.pendingCategories.indexOf(cat);
+    if (idx >= 0) {
+      this.pendingCategories.splice(idx, 1);
+    } else {
+      this.pendingCategories.push(cat);
+    }
+  }
+
+  onDistanceChange(ev: Event) {
+    this.pendingDistance = (ev as CustomEvent).detail.value;
+  }
+
+  applyFilters() {
+    this.selectedCategories = [...this.pendingCategories];
+    this.maxDistance = this.pendingDistance;
+    this.currentIndex = 0;
+    this.filterOpen = false;
+  }
+
+  clearFilters() {
+    this.selectedCategories = [];
+    this.maxDistance = MAX_DISTANCE_DEFAULT;
+    this.pendingCategories = [];
+    this.pendingDistance = MAX_DISTANCE_DEFAULT;
+    this.currentIndex = 0;
+    this.filterOpen = false;
   }
 
   private setupGesture() {
@@ -160,7 +330,6 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy {
   }
 
   openDetail(group: GroupDto) {
-    // Solo navegar si el usuario no estaba arrastrando la tarjeta
     if (this.movedPx > 10) return;
     this.router.navigate(['/group-detail', group.id]);
   }

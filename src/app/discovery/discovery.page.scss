@@ -323,6 +323,170 @@ body:not(.light-theme) .discovery-content {
   }
 }
 
+// ── Filter button badge ───────────────────────
+.filter-btn-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.filter-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #6C63FF;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+// ── Filter bottom sheet ───────────────────────
+.filter-sheet-content {
+  --background: var(--c-bg-elevated);
+}
+
+.filter-sheet {
+  padding: 0 20px calc(24px + env(safe-area-inset-bottom));
+}
+
+.filter-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--c-border-strong);
+  margin: 12px auto 20px;
+}
+
+.filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.filter-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--c-text-1);
+  margin: 0;
+}
+
+.filter-reset {
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-text-7);
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.15s;
+
+  &.active {
+    color: #6C63FF;
+  }
+}
+
+.filter-section {
+  margin-bottom: 28px;
+}
+
+.filter-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.filter-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-text-6);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0 0 14px;
+}
+
+.filter-section-head .filter-section-title {
+  margin-bottom: 0;
+}
+
+.filter-distance-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: #6C63FF;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 22px;
+  border: 1.5px solid var(--c-border-med);
+  background: var(--c-surface);
+  color: var(--c-text-3);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s;
+
+  ion-icon { font-size: 15px; }
+
+  &:active { transform: scale(0.95); }
+
+  &.selected {
+    background: rgba(108, 99, 255, 0.15);
+    border-color: #6C63FF;
+    color: #a09bff;
+    font-weight: 700;
+
+    ion-icon { color: #6C63FF; }
+  }
+}
+
+.filter-range {
+  --bar-background: var(--c-surface-2);
+  --bar-background-active: #6C63FF;
+  --knob-background: #6C63FF;
+  --knob-box-shadow: 0 2px 8px rgba(108, 99, 255, 0.4);
+  --pin-background: #6C63FF;
+  --pin-color: #fff;
+  padding: 8px 0;
+}
+
+.filter-footer {
+  padding-top: 4px;
+}
+
+.filter-apply-btn {
+  --background: linear-gradient(90deg, #6C63FF, #FF6584);
+  --background-activated: #5a54d4;
+  --border-radius: 16px;
+  --box-shadow: 0 6px 20px rgba(108, 99, 255, 0.35);
+  --color: #fff;
+  height: 52px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.apply-count {
+  margin-left: 6px;
+  opacity: 0.85;
+  font-weight: 500;
+}
+
 // ── Empty state ───────────────────────────────
 .empty-state {
   display: flex;
