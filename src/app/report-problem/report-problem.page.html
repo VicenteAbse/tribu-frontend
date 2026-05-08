@@ -1,0 +1,51 @@
+<ion-content class="page-content" [fullscreen]="true">
+
+  <div class="page-header">
+    <button class="back-btn" type="button" (click)="goBack()">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+    </button>
+    <span class="header-title">Reportar un problema</span>
+    <div class="header-spacer"></div>
+  </div>
+
+  <div class="page-hint">
+    <ion-icon name="flag-outline" class="hint-icon"></ion-icon>
+    <p>Describe el problema con el mayor detalle posible. Tu reporte nos ayuda a mejorar Trivy.</p>
+  </div>
+
+  <form [formGroup]="form" class="page-form">
+
+    <div class="field-group">
+      <div class="label-row">
+        <label class="field-label">Descripción del problema</label>
+        <span class="char-count" [class.over]="charCount > maxLength">
+          {{ charCount }}/{{ maxLength }}
+        </span>
+      </div>
+      <div class="input-wrap textarea-wrap" [class.invalid]="messageCtrl.invalid && messageCtrl.touched">
+        <textarea
+          class="field-input field-textarea"
+          placeholder="Ej: Al intentar unirme a un grupo, la app se cierra inesperadamente..."
+          formControlName="message"
+          rows="8">
+        </textarea>
+      </div>
+      @if (messageCtrl.touched && messageCtrl.hasError('required')) {
+        <p class="field-error">Por favor describe el problema</p>
+      } @else if (messageCtrl.touched && messageCtrl.hasError('minlength')) {
+        <p class="field-error">Mínimo 10 caracteres</p>
+      } @else if (messageCtrl.touched && messageCtrl.hasError('maxlength')) {
+        <p class="field-error">Máximo {{ maxLength }} caracteres</p>
+      }
+    </div>
+
+  </form>
+
+  <div class="submit-wrap">
+    <ion-button expand="block" class="submit-btn" (click)="onSend()">
+      <ion-icon name="send-outline" slot="start"></ion-icon>
+      Enviar reporte
+    </ion-button>
+  </div>
+
+</ion-content>

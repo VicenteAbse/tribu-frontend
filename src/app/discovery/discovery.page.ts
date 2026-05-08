@@ -10,6 +10,7 @@ import {
 import { Router } from '@angular/router';
 import { GestureController, GestureDetail } from '@ionic/angular';
 import { GroupDto } from '../dtos/group.dto';
+import { NotificationDto } from '../dtos/notification.dto';
 
 const ALL_GROUPS: GroupDto[] = [
   {
@@ -146,6 +147,70 @@ const ALL_CATEGORIES = [
 const MAX_DISTANCE_DEFAULT = 20;
 const THRESHOLD = 80;
 
+const now = Date.now();
+const NOTIFICATIONS: NotificationDto[] = [
+  {
+    id: 1,
+    groupId: 4,
+    groupName: 'Dev Santiago',
+    groupBackgroundColor: '#26de81',
+    groupCategory: 'Tecnología',
+    message: 'Dev Santiago publicó un nuevo evento: "Hackathon de IA" este sábado. ¡No te lo pierdas!',
+    timestamp: new Date(now - 5 * 60 * 1000),
+    isRead: false
+  },
+  {
+    id: 2,
+    groupId: 1,
+    groupName: 'Senderismo Urbano',
+    groupBackgroundColor: '#4ECDC4',
+    groupCategory: 'Deporte & Naturaleza',
+    message: 'Senderismo Urbano tiene una caminata programada para el domingo. ¡Quedan 3 cupos!',
+    timestamp: new Date(now - 32 * 60 * 1000),
+    isRead: false
+  },
+  {
+    id: 3,
+    groupId: 3,
+    groupName: 'Fotografía Callejera',
+    groupBackgroundColor: '#6C63FF',
+    groupCategory: 'Arte & Creatividad',
+    message: 'Tu solicitud para unirte a Fotografía Callejera fue aceptada.',
+    timestamp: new Date(now - 2 * 60 * 60 * 1000),
+    isRead: false
+  },
+  {
+    id: 4,
+    groupId: 2,
+    groupName: 'Book Club Café',
+    groupBackgroundColor: '#FF6584',
+    groupCategory: 'Cultura & Lectura',
+    message: 'Book Club Café actualizó el libro del mes: "Cien años de soledad".',
+    timestamp: new Date(now - 5 * 60 * 60 * 1000),
+    isRead: true
+  },
+  {
+    id: 5,
+    groupId: 10,
+    groupName: 'Coro Moderno',
+    groupBackgroundColor: '#eb3b5a',
+    groupCategory: 'Música',
+    message: 'Coro Moderno invitó a 5 nuevos miembros. ¡El grupo sigue creciendo!',
+    timestamp: new Date(now - 24 * 60 * 60 * 1000),
+    isRead: true
+  },
+  {
+    id: 6,
+    groupId: 7,
+    groupName: 'Yoga & Meditación',
+    groupBackgroundColor: '#F7B731',
+    groupCategory: 'Deporte & Naturaleza',
+    message: 'Yoga & Meditación recordatorio: sesión mañana a las 8:00 AM en el parque.',
+    timestamp: new Date(now - 2 * 24 * 60 * 60 * 1000),
+    isRead: true
+  }
+];
+
 @Component({
   selector: 'app-discovery',
   templateUrl: './discovery.page.html',
@@ -170,6 +235,10 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy {
   filterOpen = false;
   pendingCategories: string[] = [];
   pendingDistance = MAX_DISTANCE_DEFAULT;
+
+  // Notifications
+  notificationsOpen = false;
+  notifications: NotificationDto[] = [...NOTIFICATIONS];
 
   private activeGesture?: ReturnType<GestureController['create']>;
   private movedPx = 0;
@@ -205,6 +274,14 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy {
     return this.currentIndex < this.filteredGroups.length;
   }
 
+  get hasUnreadNotifications(): boolean {
+    return this.notifications.some(n => !n.isRead);
+  }
+
+  get unreadCount(): number {
+    return this.notifications.filter(n => !n.isRead).length;
+  }
+
   get activeFilterCount(): number {
     let n = 0;
     if (this.selectedCategories.length > 0) n++;
@@ -221,6 +298,31 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy {
   }
 
   readonly distanceFormatter = (v: number) => v < 20 ? `${v}km` : '∞';
+
+  openNotifications() {
+    this.notificationsOpen = true;
+  }
+
+  markAsRead(id: number) {
+    const n = this.notifications.find(n => n.id === id);
+    if (n) n.isRead = true;
+  }
+
+  markAllRead() {
+    this.notifications.forEach(n => n.isRead = true);
+  }
+
+  timeAgo(date: Date): string {
+    const diff = Date.now() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return 'ahora';
+    if (minutes < 60) return `hace ${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `hace ${hours} h`;
+    const days = Math.floor(hours / 24);
+    if (days === 1) return 'ayer';
+    return `hace ${days} días`;
+  }
 
   openFilters() {
     this.pendingCategories = [...this.selectedCategories];

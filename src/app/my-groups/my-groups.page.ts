@@ -56,7 +56,7 @@ const MY_GROUPS: MyGroupDto[] = [
     lastMessageText: 'Subí las fotos de ayer al álbum compartido 📷',
     lastMessageTime: 'Ayer',
     unreadCount: 12,
-    role: 'member'
+    role: 'creator'
   },
   {
     id: 5,

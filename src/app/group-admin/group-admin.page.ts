@@ -65,6 +65,11 @@ const ADMIN_DATA: Record<number, AdminGroupData> = {
   }
 };
 
+const COLOR_PALETTE = [
+  '#4ECDC4', '#6C63FF', '#FF6584', '#F7B731',
+  '#A55EEA', '#FC5C65', '#26de81', '#fd9644', '#2d98da'
+];
+
 const CATEGORIES = [
   'Deporte & Naturaleza', 'Cultura & Lectura', 'Arte & Creatividad',
   'Tecnología', 'Música', 'Gastronomía'
@@ -87,20 +92,31 @@ export class GroupAdminPage implements OnInit {
   showEventForm = false;
   eventForm: FormGroup;
   editForm: FormGroup;
+  editImageSlots: (string | null)[] = [null, null, null];
 
   readonly categories = CATEGORIES;
 
+  readonly joinPolicies: { value: 'open' | 'approval'; label: string; sub: string; icon: string }[] = [
+    {
+      value: 'open',
+      label: 'Acceso libre',
+      sub: 'Cualquiera que da like se une directamente al grupo.',
+      icon: 'flash-outline'
+    },
+    {
+      value: 'approval',
+      label: 'Con aprobación',
+      sub: 'El creador o un admin debe aprobar cada solicitud de ingreso.',
+      icon: 'shield-checkmark-outline'
+    }
+  ];
+
   get segments() {
-    const segs: { value: string; label: string; badge: number }[] = [];
-    if (this.group?.joinPolicy === 'approval') {
-      segs.push({ value: 'requests', label: 'Solicitudes', badge: this.pendingRequests.length });
-    }
-    segs.push({ value: 'members', label: 'Miembros', badge: 0 });
-    segs.push({ value: 'events',  label: 'Eventos',   badge: 0 });
-    if (this.group?.viewerRole === 'creator') {
-      segs.push({ value: 'edit', label: 'Editar', badge: 0 });
-    }
-    return segs;
+    return [
+      { value: 'members', label: 'Miembros', badge: this.pendingRequests.length },
+      { value: 'events',  label: 'Eventos',  badge: 0 },
+      { value: 'edit',    label: 'Editar',   badge: 0 }
+    ];
   }
 
   get upcomingEvents(): GroupEventDto[] { return this.events.filter(e => !e.isPast); }
@@ -121,10 +137,10 @@ export class GroupAdminPage implements OnInit {
     });
 
     this.editForm = this.fb.group({
-      name:        ['', [Validators.required, Validators.minLength(3)]],
-      description: ['', Validators.required],
+      name:        ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
+      description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(300)]],
       category:    ['', Validators.required],
-      joinPolicy:  ['open']
+      joinPolicy:  ['open', Validators.required]
     });
   }
 
@@ -138,12 +154,14 @@ export class GroupAdminPage implements OnInit {
     this.pendingRequests = [...data.pendingRequests];
     this.events = [...data.events];
 
-    this.activeSegment = this.pendingRequests.length > 0 ? 'requests' : 'members';
+    this.activeSegment = 'members';
 
     this.editForm.patchValue({
       name: data.name, description: data.description,
       category: data.category, joinPolicy: data.joinPolicy
     });
+
+    this.editImageSlots = [data.backgroundColor, null, null];
   }
 
   goBack() { this.navCtrl.back(); }
@@ -165,12 +183,15 @@ export class GroupAdminPage implements OnInit {
 
   // ── Miembros ──────────────────────────────────
   async openMemberActions(member: GroupMemberDto) {
-    if (member.role === 'admin') return;
-
     const sheet = await this.actionSheetCtrl.create({
       header: member.name,
       cssClass: 'admin-action-sheet',
       buttons: [
+        {
+          text: 'Asignar como admin',
+          icon: 'shield-outline',
+          handler: () => { member.role = 'admin'; }
+        },
         {
           text: member.isMuted ? 'Desactivar silencio' : 'Silenciar',
           icon: member.isMuted ? 'volume-high-outline' : 'volume-mute-outline',
@@ -220,6 +241,21 @@ export class GroupAdminPage implements OnInit {
   }
 
   // ── Editar grupo ──────────────────────────────
+  get editFilledSlots(): number { return this.editImageSlots.filter(Boolean).length; }
+  get editNameLen(): number { return (this.editForm.get('name')!.value as string).length; }
+  get editDescLen(): number { return (this.editForm.get('description')!.value as string).length; }
+
+  cycleEditSlotColor(index: number) {
+    const current = this.editImageSlots[index];
+    const idx = current ? COLOR_PALETTE.indexOf(current) : -1;
+    this.editImageSlots[index] = COLOR_PALETTE[(idx + 1) % COLOR_PALETTE.length];
+  }
+
+  clearEditSlot(index: number, event: Event) {
+    event.stopPropagation();
+    this.editImageSlots[index] = null;
+  }
+
   selectCategory(cat: string) { this.editForm.get('category')!.setValue(cat); }
   setJoinPolicy(p: string)    { this.editForm.get('joinPolicy')!.setValue(p); }
 

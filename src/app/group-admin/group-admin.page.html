@@ -44,16 +44,16 @@
 
   <ion-content class="admin-content">
 
-    <!-- ── Solicitudes ── -->
-    @if (activeSegment === 'requests') {
+    <!-- ── Miembros + Solicitudes ── -->
+    @if (activeSegment === 'members') {
       <div class="tab-content">
-        @if (pendingRequests.length === 0) {
-          <div class="empty-state">
-            <ion-icon name="checkmark-circle-outline"></ion-icon>
-            <p>No hay solicitudes pendientes</p>
+
+        @if (pendingRequests.length > 0) {
+          <div class="members-section-label">
+            <ion-icon name="time-outline"></ion-icon>
+            Solicitudes pendientes
+            <span class="members-section-count">{{ pendingRequests.length }}</span>
           </div>
-        } @else {
-          <p class="tab-hint">{{ pendingRequests.length }} persona(s) esperan ser aceptadas</p>
           @for (req of pendingRequests; track req.id) {
             <div class="request-card">
               <div class="req-avatar" [style.background-color]="req.userAvatarColor">
@@ -74,14 +74,14 @@
               </div>
             </div>
           }
+          <div class="members-divider"></div>
         }
-      </div>
-    }
 
-    <!-- ── Miembros ── -->
-    @if (activeSegment === 'members') {
-      <div class="tab-content">
-        <p class="tab-hint">{{ members.length }} miembros · toca ··· para gestionar</p>
+        <div class="members-section-label">
+          <ion-icon name="people-outline"></ion-icon>
+          Miembros
+          <span class="members-section-count">{{ members.length }}</span>
+        </div>
         @for (member of members; track member.id) {
           <div class="member-row">
             <div class="member-avatar" [style.background-color]="group.backgroundColor">
@@ -107,6 +107,7 @@
             }
           </div>
         }
+
       </div>
     }
 
@@ -206,65 +207,145 @@
       </div>
     }
 
-    <!-- ── Editar grupo (solo creador) ── -->
+    <!-- ── Editar grupo ── -->
     @if (activeSegment === 'edit') {
-      <div class="tab-content" [formGroup]="editForm">
+      <form [formGroup]="editForm" (ngSubmit)="saveGroupEdit()">
 
-        <div class="form-field">
-          <label class="form-label">Nombre del grupo</label>
-          <input class="form-input" type="text" formControlName="name" />
-          @if (editForm.get('name')!.touched && editForm.get('name')!.hasError('required')) {
-            <p class="form-error">El nombre es obligatorio</p>
+        <!-- Imágenes -->
+        <div class="form-section">
+          <div class="section-header">
+            <h3 class="section-title">Imágenes del grupo</h3>
+            <span class="section-hint">{{ editFilledSlots }}/3 · Toca para elegir color</span>
+          </div>
+          <div class="image-slots">
+            @for (slot of editImageSlots; track $index; let i = $index) {
+              <div
+                class="image-slot"
+                [class.filled]="!!slot"
+                [style.background-color]="slot ?? 'transparent'"
+                (click)="cycleEditSlotColor(i)">
+                @if (!slot) {
+                  <div class="slot-empty">
+                    <ion-icon name="image-outline"></ion-icon>
+                    <span>Agregar</span>
+                  </div>
+                } @else {
+                  <button class="slot-clear" type="button" (click)="clearEditSlot(i, $event)">
+                    <ion-icon name="close-circle"></ion-icon>
+                  </button>
+                  <ion-icon name="color-palette-outline" class="slot-palette-icon"></ion-icon>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Nombre -->
+        <div class="form-section">
+          <div class="section-header">
+            <h3 class="section-title">Nombre del grupo</h3>
+            <span class="section-hint">{{ editNameLen }}/50</span>
+          </div>
+          <div class="field-box" [class.field-error]="editForm.get('name')!.invalid && editForm.get('name')!.touched">
+            <ion-icon name="people-outline" class="field-icon"></ion-icon>
+            <input
+              formControlName="name"
+              type="text"
+              class="field-input"
+              placeholder="Ej: Senderismo Urbano"
+              maxlength="50" />
+          </div>
+          @if (editForm.get('name')!.invalid && editForm.get('name')!.touched) {
+            <p class="error-msg">
+              @if (editForm.get('name')!.errors?.['required']) { El nombre es obligatorio. }
+              @else if (editForm.get('name')!.errors?.['minlength']) { Mínimo 3 caracteres. }
+            </p>
           }
         </div>
 
-        <div class="form-field">
-          <label class="form-label">Descripción</label>
-          <textarea class="form-input form-textarea" formControlName="description" rows="3"></textarea>
+        <!-- Descripción -->
+        <div class="form-section">
+          <div class="section-header">
+            <h3 class="section-title">Descripción</h3>
+            <span class="section-hint">{{ editDescLen }}/300</span>
+          </div>
+          <div class="field-box textarea-box" [class.field-error]="editForm.get('description')!.invalid && editForm.get('description')!.touched">
+            <textarea
+              formControlName="description"
+              class="field-input field-textarea"
+              placeholder="Cuéntales a los demás de qué trata tu grupo, qué hacen, cuándo se reúnen..."
+              maxlength="300"
+              rows="4">
+            </textarea>
+          </div>
+          @if (editForm.get('description')!.invalid && editForm.get('description')!.touched) {
+            <p class="error-msg">
+              @if (editForm.get('description')!.errors?.['required']) { La descripción es obligatoria. }
+              @else if (editForm.get('description')!.errors?.['minlength']) { Mínimo 10 caracteres. }
+            </p>
+          }
         </div>
 
-        <div class="form-field">
-          <label class="form-label">Categoría</label>
-          <div class="category-grid">
+        <!-- Categoría -->
+        <div class="form-section">
+          <div class="section-header">
+            <h3 class="section-title">Categoría</h3>
+          </div>
+          <div class="chips-wrap">
             @for (cat of categories; track cat) {
               <button
-                class="cat-chip"
                 type="button"
-                [class.selected]="editForm.get('category')!.value === cat"
+                class="cat-chip-edit"
+                [class.cat-selected]="editForm.get('category')!.value === cat"
                 (click)="selectCategory(cat)">
                 {{ cat }}
               </button>
             }
           </div>
+          @if (editForm.get('category')!.invalid && editForm.get('category')!.touched) {
+            <p class="error-msg">Selecciona una categoría.</p>
+          }
         </div>
 
-        <div class="form-field">
-          <label class="form-label">Política de ingreso</label>
-          <div class="policy-row">
-            <button
-              class="policy-btn"
-              type="button"
-              [class.selected]="editForm.get('joinPolicy')!.value === 'open'"
-              (click)="setJoinPolicy('open')">
-              <ion-icon name="heart-outline"></ion-icon>
-              Libre (con like)
-            </button>
-            <button
-              class="policy-btn"
-              type="button"
-              [class.selected]="editForm.get('joinPolicy')!.value === 'approval'"
-              (click)="setJoinPolicy('approval')">
-              <ion-icon name="shield-checkmark-outline"></ion-icon>
-              Con aprobación
-            </button>
+        <!-- Política de acceso -->
+        <div class="form-section">
+          <div class="section-header">
+            <h3 class="section-title">Política de acceso</h3>
+          </div>
+          <div class="policy-cards">
+            @for (p of joinPolicies; track p.value) {
+              <div
+                class="policy-card"
+                [class.policy-selected]="editForm.get('joinPolicy')!.value === p.value"
+                (click)="setJoinPolicy(p.value)">
+                <div class="policy-icon-wrap">
+                  <ion-icon [name]="p.icon"></ion-icon>
+                </div>
+                <div class="policy-text-wrap">
+                  <span class="policy-label-text">{{ p.label }}</span>
+                  <span class="policy-sub-text">{{ p.sub }}</span>
+                </div>
+                <div class="policy-radio">
+                  <div class="radio-dot" [class.radio-active]="editForm.get('joinPolicy')!.value === p.value"></div>
+                </div>
+              </div>
+            }
           </div>
         </div>
 
-        <button class="save-edit-btn" type="button" (click)="saveGroupEdit()">
-          Guardar cambios
-        </button>
+        <!-- Submit -->
+        <div class="edit-submit-section">
+          <ion-button
+            expand="block"
+            type="submit"
+            class="edit-submit-btn"
+            [disabled]="editForm.invalid">
+            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+            Guardar cambios
+          </ion-button>
+        </div>
 
-      </div>
+      </form>
     }
 
   </ion-content>

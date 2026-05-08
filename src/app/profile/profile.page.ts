@@ -51,8 +51,8 @@ export class ProfilePage {
     {
       title: 'Preferencias',
       items: [
-        { icon: 'notifications-outline', label: 'Notificaciones',     iconBg: '#4ECDC4', action: 'notifications'  },
-        { icon: 'eye-outline',           label: 'Privacidad',         iconBg: '#4ECDC4', action: 'privacy'        },
+        // { icon: 'notifications-outline', label: 'Notificaciones',     iconBg: '#4ECDC4', action: 'notifications'  },
+        // { icon: 'eye-outline',           label: 'Privacidad',         iconBg: '#4ECDC4', action: 'privacy'        },
         // { icon: 'language-outline',      label: 'Idioma',             iconBg: '#4ECDC4', action: 'language', value: 'Español' },
         { icon: 'color-palette-outline', label: 'Apariencia',         iconBg: '#4ECDC4', action: 'appearance', value: 'Oscuro' }
       ]
@@ -60,8 +60,8 @@ export class ProfilePage {
     {
       title: 'Soporte',
       items: [
-        { icon: 'help-circle-outline',   label: 'Centro de ayuda',       iconBg: '#F7B731', action: 'help'   },
-        { icon: 'chatbox-outline',       label: 'Contactar soporte',     iconBg: '#F7B731', action: 'support'},
+        // { icon: 'help-circle-outline',   label: 'Centro de ayuda',       iconBg: '#F7B731', action: 'help'   },
+        // { icon: 'chatbox-outline',       label: 'Contactar soporte',     iconBg: '#F7B731', action: 'support'},
         { icon: 'flag-outline',          label: 'Reportar un problema',  iconBg: '#F7B731', action: 'report' }
       ]
     }
@@ -81,6 +81,14 @@ export class ProfilePage {
   async onSettingTap(action: string) {
     if (action === 'editProfile') {
       this.router.navigate(['/edit-profile']);
+      return;
+    }
+    if (action === 'changePassword') {
+      this.router.navigate(['/change-password']);
+      return;
+    }
+    if (action === 'report') {
+      this.router.navigate(['/report-problem']);
       return;
     }
     if (action === 'appearance') {

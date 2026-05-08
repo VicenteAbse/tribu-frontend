@@ -34,6 +34,14 @@ const routes: Routes = [
   {
     path: 'group-admin/:id',
     loadChildren: () => import('./group-admin/group-admin.module').then(m => m.GroupAdminPageModule)
+  },
+  {
+    path: 'change-password',
+    loadChildren: () => import('./change-password/change-password.module').then(m => m.ChangePasswordPageModule)
+  },
+  {
+    path: 'report-problem',
+    loadChildren: () => import('./report-problem/report-problem.module').then(m => m.ReportProblemPageModule)
   }
 ];
 
