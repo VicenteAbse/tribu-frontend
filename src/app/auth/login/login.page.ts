@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoginDto } from '../../dtos/login.dto';
+import { LoadingController, ToastController } from '@ionic/angular';
+import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -13,36 +15,51 @@ export class LoginPage {
   loginForm: FormGroup;
   showPassword = false;
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private apiService: ApiService,
+    private authService: AuthService,
+    private loadingCtrl: LoadingController,
+    private toastCtrl: ToastController,
+  ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
-  get emailControl() {
-    return this.loginForm.get('email');
-  }
-
-  get passwordControl() {
-    return this.loginForm.get('password');
-  }
+  get emailControl() { return this.loginForm.get('email'); }
+  get passwordControl() { return this.loginForm.get('password'); }
 
   togglePassword() {
     this.showPassword = !this.showPassword;
   }
 
-  onLogin() {
+  async onLogin() {
     if (this.loginForm.invalid) return;
 
-    const dto: LoginDto = {
-      email: this.loginForm.value.email,
-      password: this.loginForm.value.password
-    };
+    const loading = await this.loadingCtrl.create({ message: 'Iniciando sesión...' });
+    await loading.present();
 
-    console.log('Login DTO:', dto);
-    this.router.navigate(['/tabs/discovery']);
-    // TODO: conectar con servicio de autenticación
+    this.apiService.login({
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password,
+    }).subscribe({
+      next: async (res) => {
+        await this.authService.saveToken(res.token);
+        await loading.dismiss();
+        this.router.navigate(['/tabs/discovery'], { replaceUrl: true });
+      },
+      error: async (err) => {
+        await loading.dismiss();
+        const message = err.status === 401
+          ? 'Correo o contraseña incorrectos'
+          : 'Error al iniciar sesión. Intenta de nuevo.';
+        const toast = await this.toastCtrl.create({ message, duration: 3000, color: 'danger' });
+        await toast.present();
+      },
+    });
   }
 
   loginWithGoogle() {

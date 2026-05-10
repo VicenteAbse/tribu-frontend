@@ -46,14 +46,18 @@
     <!-- Card stack -->
     <div class="card-area">
 
-      @if (hasCards) {
+      @if (isLoading) {
+        <div class="empty-state">
+          <ion-spinner name="crescent"></ion-spinner>
+        </div>
+      } @else if (hasCards) {
         <div class="card-stack">
           @for (group of visibleGroups; track group.id; let i = $index) {
             <div
               #swipeCard
               class="swipe-card"
               [ngClass]="'pos-' + i"
-              [style.background-color]="group.backgroundColor">
+              [style.background-color]="getGroupColor(group.id)">
 
               @if (i === 0) {
                 <div class="swipe-badge like-badge" [style.opacity]="likeOpacity">
@@ -72,7 +76,11 @@
 
               <div class="card-info" (click)="openDetail(group)">
                 <div class="card-header-info">
-                  <span class="category-badge">{{ group.category }}</span>
+                  @if (group.category) {
+                    <span class="category-badge">{{ getCategoryLabel(group.category) }}</span>
+                  } @else {
+                    <span class="category-badge">{{ getGenderLabel(group.genderPreference) }}</span>
+                  }
                 </div>
                 <h2 class="group-name">{{ group.name }}</h2>
                 <p class="group-description">{{ group.description }}</p>
@@ -80,19 +88,27 @@
                 <div class="group-meta">
                   <div class="meta-item">
                     <ion-icon name="people-outline"></ion-icon>
-                    <span>{{ group.memberCount }} miembros</span>
+                    <span>{{ group.minMembers }}–{{ group.maxMembers }} miembros</span>
                   </div>
-                  <div class="meta-item">
-                    <ion-icon name="location-outline"></ion-icon>
-                    <span>{{ group.distance }} km</span>
-                  </div>
+                  @if (group.distanceKm != null) {
+                    <div class="meta-item">
+                      <ion-icon name="location-outline"></ion-icon>
+                      <span>{{ group.distanceKm }} km</span>
+                    </div>
+                  } @else {
+                    <div class="meta-item">
+                      <ion-icon name="heart-outline"></ion-icon>
+                      <span>{{ group.likesCount }} interesados</span>
+                    </div>
+                  }
                 </div>
 
                 <div class="card-footer">
                   <div class="tags-row">
-                    @for (tag of group.tags; track tag) {
-                      <span class="tag"># {{ tag }}</span>
-                    }
+                    <span class="tag">
+                      <ion-icon name="person-outline"></ion-icon>
+                      {{ group.creatorName }}
+                    </span>
                   </div>
                   <span class="see-more">
                     Ver más <ion-icon name="chevron-forward-outline"></ion-icon>
@@ -106,19 +122,11 @@
       } @else {
         <div class="empty-state">
           <ion-icon name="search-outline" class="empty-icon"></ion-icon>
-          @if (activeFilterCount > 0) {
-            <h3>Sin resultados</h3>
-            <p>No hay grupos que coincidan con tus filtros. Intenta ampliar la búsqueda.</p>
-            <ion-button class="refresh-btn" (click)="clearFilters()">
-              Quitar filtros
-            </ion-button>
-          } @else {
-            <h3>¡Exploraste todos los grupos!</h3>
-            <p>Vuelve más tarde para ver nuevos grupos cerca de ti.</p>
-            <ion-button class="refresh-btn" (click)="currentIndex = 0">
-              Ver de nuevo
-            </ion-button>
-          }
+          <h3>¡Exploraste todos los grupos!</h3>
+          <p>Vuelve más tarde para ver nuevos grupos cerca de ti.</p>
+          <ion-button class="refresh-btn" (click)="loadGroups()">
+            Actualizar
+          </ion-button>
         </div>
       }
 
@@ -176,19 +184,19 @@
             @for (notif of notifications; track notif.id) {
               <div
                 class="notif-item"
-                [class.unread]="!notif.isRead"
+                [class.unread]="!notif.read"
                 (click)="markAsRead(notif.id)">
 
-                <div class="notif-avatar" [style.background-color]="notif.groupBackgroundColor">
-                  <ion-icon [name]="getCategoryIcon(notif.groupCategory)"></ion-icon>
-                  @if (!notif.isRead) {
+                <div class="notif-avatar" style="background-color: var(--trivy-purple)">
+                  <ion-icon name="notifications-outline"></ion-icon>
+                  @if (!notif.read) {
                     <span class="notif-item-dot"></span>
                   }
                 </div>
 
                 <div class="notif-body">
-                  <p class="notif-message">{{ notif.message }}</p>
-                  <span class="notif-time">{{ timeAgo(notif.timestamp) }}</span>
+                  <p class="notif-message">{{ notif.body }}</p>
+                  <span class="notif-time">{{ timeAgo(notif.createdAt) }}</span>
                 </div>
 
               </div>
@@ -233,8 +241,8 @@
                 [class.selected]="pendingCategories.includes(cat)"
                 type="button"
                 (click)="togglePendingCategory(cat)">
-                <ion-icon [name]="getCategoryIcon(cat)"></ion-icon>
-                {{ cat }}
+                <ion-icon [name]="categoryIcons[cat]"></ion-icon>
+                {{ categoryLabels[cat] }}
               </button>
             }
           </div>
@@ -267,9 +275,6 @@
         <div class="filter-footer">
           <ion-button expand="block" class="filter-apply-btn" (click)="applyFilters()">
             Mostrar grupos
-            @if (filteredCountForPending > 0) {
-              <span class="apply-count">({{ filteredCountForPending }})</span>
-            }
           </ion-button>
         </div>
 

@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { Platform } from '@ionic/angular';
+import { AuthService } from './services/auth.service';
 import { ThemeService } from './services/theme.service';
 
 @Component({
@@ -8,7 +11,21 @@ import { ThemeService } from './services/theme.service';
   standalone: false,
 })
 export class AppComponent {
-  constructor(theme: ThemeService) {
+  constructor(
+    theme: ThemeService,
+    private platform: Platform,
+    private authService: AuthService,
+    private router: Router,
+  ) {
     theme.initialize();
+    this.initializeApp();
+  }
+
+  private async initializeApp(): Promise<void> {
+    await this.platform.ready();
+    await this.authService.loadToken();
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/tabs/discovery'], { replaceUrl: true });
+    }
   }
 }

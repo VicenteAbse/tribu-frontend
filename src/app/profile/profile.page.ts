@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionSheetController } from '@ionic/angular';
 import { ThemeService } from '../services/theme.service';
+import { AuthService } from '../services/auth.service';
 import { UserProfileDto } from '../dtos/user-profile.dto';
 
 interface SettingsItem {
@@ -70,7 +71,8 @@ export class ProfilePage {
   constructor(
     private router: Router,
     private actionSheet: ActionSheetController,
-    public themeService: ThemeService
+    public themeService: ThemeService,
+    private authService: AuthService,
   ) {}
 
   get heroGradient(): string {
@@ -119,8 +121,8 @@ export class ProfilePage {
     console.log('Setting tapped:', action);
   }
 
-  signOut() {
-    console.log('Cerrando sesión...');
-    this.router.navigate(['/auth/login']);
+  async signOut() {
+    await this.authService.clearToken();
+    this.router.navigate(['/auth/login'], { replaceUrl: true });
   }
 }

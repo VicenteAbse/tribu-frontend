@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { RegisterDto } from '../../dtos/register.dto';
+import { LoadingController, ToastController } from '@ionic/angular';
+import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 
 function passwordsMatch(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password')?.value;
@@ -20,12 +22,19 @@ export class RegisterPage {
   showPassword = false;
   showConfirm = false;
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private apiService: ApiService,
+    private authService: AuthService,
+    private loadingCtrl: LoadingController,
+    private toastCtrl: ToastController,
+  ) {
     this.registerForm = this.fb.group(
       {
         name: ['', [Validators.required, Validators.minLength(2)]],
         email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
+        password: ['', [Validators.required, Validators.minLength(8)]],
         confirmPassword: ['', Validators.required],
         terms: [false, Validators.requiredTrue]
       },
@@ -46,17 +55,30 @@ export class RegisterPage {
   togglePassword() { this.showPassword = !this.showPassword; }
   toggleConfirm() { this.showConfirm = !this.showConfirm; }
 
-  onRegister() {
+  async onRegister() {
     if (this.registerForm.invalid) return;
 
-    const dto: RegisterDto = {
-      name: this.registerForm.value.name,
-      email: this.registerForm.value.email,
-      password: this.registerForm.value.password
-    };
+    const loading = await this.loadingCtrl.create({ message: 'Creando cuenta...' });
+    await loading.present();
 
-    console.log('Register DTO:', dto);
-    // TODO: conectar con servicio de autenticación
+    this.apiService.register({
+      email: this.registerForm.value.email,
+      password: this.registerForm.value.password,
+    }).subscribe({
+      next: async (res) => {
+        await this.authService.saveToken(res.token);
+        await loading.dismiss();
+        this.router.navigate(['/tabs/discovery'], { replaceUrl: true });
+      },
+      error: async (err) => {
+        await loading.dismiss();
+        const message = err.status === 409
+          ? 'Ya existe una cuenta con ese correo'
+          : 'Error al crear la cuenta. Intenta de nuevo.';
+        const toast = await this.toastCtrl.create({ message, duration: 3000, color: 'danger' });
+        await toast.present();
+      },
+    });
   }
 
   registerWithGoogle() {
