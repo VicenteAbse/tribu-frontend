@@ -97,6 +97,41 @@
           }
         </div>
 
+        <div class="field-group">
+          <ion-item class="custom-item" lines="none">
+            <ion-icon name="transgender-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-select
+              formControlName="gender"
+              placeholder="Género"
+              class="custom-input"
+              interface="action-sheet"
+              cancelText="Cancelar">
+              @for (opt of genderOptions; track opt.value) {
+                <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+          @if (genderControl?.invalid && genderControl?.touched) {
+            <p class="error-msg">Selecciona tu género.</p>
+          }
+        </div>
+
+        <div class="field-group">
+          <ion-item class="custom-item" lines="none">
+            <ion-icon name="calendar-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              formControlName="birthDate"
+              type="date"
+              [max]="maxBirthDate"
+              placeholder="Fecha de nacimiento"
+              class="custom-input">
+            </ion-input>
+          </ion-item>
+          @if (birthDateControl?.invalid && birthDateControl?.touched) {
+            <p class="error-msg">Ingresa tu fecha de nacimiento.</p>
+          }
+        </div>
+
         <div class="terms-row">
           <ion-checkbox formControlName="terms" class="terms-check"></ion-checkbox>
           <p class="terms-text">

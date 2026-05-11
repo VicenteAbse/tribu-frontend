@@ -16,8 +16,11 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
+  name: string;
   email: string;
   password: string;
+  gender: Gender;
+  birthDate: string;
 }
 
 export interface AuthResponse {
@@ -35,6 +38,7 @@ export interface UserProfile {
   uuid: string;
   email: string;
   name: string;
+  description: string | null;
   gender: Gender;
   birthDate: string;
   searchRadiusKm: number;
@@ -43,8 +47,7 @@ export interface UserProfile {
 
 export interface UpdateProfileRequest {
   name: string;
-  gender: Gender;
-  birthDate: string;
+  description?: string;
   searchRadiusKm: number;
 }
 

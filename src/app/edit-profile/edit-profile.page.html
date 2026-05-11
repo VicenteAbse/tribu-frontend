@@ -14,71 +14,81 @@
   <!-- Avatar -->
   <div class="avatar-section">
     <div class="avatar-wrap">
-      <div class="avatar" [style.background-color]="selectedColor">
+      <div class="avatar" style="background-color: var(--trivy-purple)">
         {{ initials || '?' }}
       </div>
-      <button class="camera-btn" type="button" (click)="showColorPicker = !showColorPicker">
-        <ion-icon name="color-palette-outline"></ion-icon>
-      </button>
     </div>
-    <p class="avatar-hint">Toca el ícono para cambiar el color</p>
-
-    @if (showColorPicker) {
-      <div class="color-picker">
-        @for (color of avatarColors; track color) {
-          <button
-            class="color-dot"
-            type="button"
-            [style.background-color]="color"
-            [class.selected]="color === selectedColor"
-            (click)="selectColor(color)">
-          </button>
-        }
-      </div>
-    }
   </div>
 
   <!-- Form -->
-  <form [formGroup]="form" class="edit-form">
-
-    <div class="field-group">
-      <label class="field-label">Nombre</label>
-      <div class="input-wrap" [class.invalid]="nameCtrl.invalid && nameCtrl.touched">
-        <ion-icon name="person-outline" class="input-icon"></ion-icon>
-        <input
-          class="field-input"
-          type="text"
-          placeholder="Tu nombre completo"
-          formControlName="name"
-          autocomplete="name" />
-      </div>
-      @if (nameCtrl.touched && nameCtrl.hasError('required')) {
-        <p class="field-error">El nombre es obligatorio</p>
-      } @else if (nameCtrl.touched && nameCtrl.hasError('minlength')) {
-        <p class="field-error">Mínimo 2 caracteres</p>
-      }
+  @if (isLoading) {
+    <div class="edit-form">
+      <ion-skeleton-text animated style="height: 48px; border-radius: 12px; margin-bottom: 16px;"></ion-skeleton-text>
+      <ion-skeleton-text animated style="height: 48px; border-radius: 12px; margin-bottom: 16px;"></ion-skeleton-text>
+      <ion-skeleton-text animated style="height: 48px; border-radius: 12px;"></ion-skeleton-text>
     </div>
+  } @else {
+    <form [formGroup]="form" class="edit-form">
 
-    <div class="field-group">
-      <div class="label-row">
-        <label class="field-label">Descripción</label>
-        <span class="char-count" [class.over]="bioLength > maxBioLength">
-          {{ bioLength }}/{{ maxBioLength }}
-        </span>
+      <!-- Nombre -->
+      <div class="field-group">
+        <label class="field-label">Nombre</label>
+        <div class="input-wrap" [class.invalid]="nameCtrl.invalid && nameCtrl.touched">
+          <ion-icon name="person-outline" class="input-icon"></ion-icon>
+          <input
+            class="field-input"
+            type="text"
+            placeholder="Tu nombre completo"
+            formControlName="name"
+            autocomplete="name" />
+        </div>
+        @if (nameCtrl.touched && nameCtrl.hasError('required')) {
+          <p class="field-error">El nombre es obligatorio</p>
+        } @else if (nameCtrl.touched && nameCtrl.hasError('minlength')) {
+          <p class="field-error">Mínimo 2 caracteres</p>
+        }
       </div>
-      <div class="input-wrap textarea-wrap" [class.invalid]="bioCtrl.invalid && bioCtrl.touched">
-        <textarea
-          class="field-input field-textarea"
-          placeholder="Cuéntale a los demás un poco sobre ti..."
-          formControlName="bio"
-          rows="4">
-        </textarea>
-      </div>
-      @if (bioCtrl.touched && bioCtrl.hasError('maxlength')) {
-        <p class="field-error">Máximo {{ maxBioLength }} caracteres</p>
-      }
-    </div>
 
-  </form>
+      <!-- Descripción -->
+      <div class="field-group">
+        <div class="label-row">
+          <label class="field-label">Descripción</label>
+          <span class="char-count" [class.over]="descLength > maxDescLength">
+            {{ descLength }}/{{ maxDescLength }}
+          </span>
+        </div>
+        <div class="input-wrap textarea-wrap" [class.invalid]="descriptionCtrl.invalid && descriptionCtrl.touched">
+          <textarea
+            class="field-input field-textarea"
+            placeholder="Cuéntale a los demás un poco sobre ti..."
+            formControlName="description"
+            rows="4">
+          </textarea>
+        </div>
+        @if (descriptionCtrl.touched && descriptionCtrl.hasError('maxlength')) {
+          <p class="field-error">Máximo {{ maxDescLength }} caracteres</p>
+        }
+      </div>
+
+      <!-- Radio de búsqueda -->
+      <div class="field-group">
+        <div class="label-row">
+          <label class="field-label">Radio de búsqueda</label>
+          <span class="char-count">{{ searchRadiusCtrl.value }} km</span>
+        </div>
+        <ion-range
+          [min]="1"
+          [max]="100"
+          [step]="1"
+          [value]="searchRadiusCtrl.value"
+          color="primary"
+          (ionChange)="onRadiusChange($event)">
+          <ion-icon slot="start" name="location-outline"></ion-icon>
+          <ion-icon slot="end" name="navigate-outline"></ion-icon>
+        </ion-range>
+      </div>
+
+    </form>
+  }
 
 </ion-content>

@@ -1,9 +1,23 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { ActionSheetController } from '@ionic/angular';
+import { ActionSheetController, ViewWillEnter } from '@ionic/angular';
 import { ThemeService } from '../services/theme.service';
 import { AuthService } from '../services/auth.service';
-import { UserProfileDto } from '../dtos/user-profile.dto';
+import { ApiService } from '../services/api.service';
+import { UserProfile } from '../dtos/api.dto';
+
+const AVATAR_PALETTE = ['#6C63FF', '#FF6584', '#4ECDC4', '#F7B731', '#A55EEA', '#FC5C65', '#26de81', '#fd9644'];
+
+function avatarColor(seed: string): string {
+  let hash = 0;
+  for (const c of seed) hash = (hash * 31 + c.charCodeAt(0)) | 0;
+  return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length];
+}
+
+function initials(name: string | null): string {
+  if (!name?.trim()) return '?';
+  return name.trim().split(/\s+/).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+}
 
 interface SettingsItem {
   icon: string;
@@ -18,27 +32,15 @@ interface SettingsSection {
   items: SettingsItem[];
 }
 
-const MY_PROFILE: UserProfileDto = {
-  id: 0,
-  name: 'Vicente Abse',
-  username: '@vicenteabse',
-  bio: 'Amante de la fotografía urbana y el senderismo 🏔️ Siempre en busca de nuevas aventuras y personas con quienes compartirlas.',
-  location: 'Santiago, Chile',
-  avatarColor: '#6C63FF',
-  initials: 'VA',
-  interests: ['Deporte & Naturaleza', 'Arte & Creatividad', 'Fotografía', 'Senderismo', 'Cultura & Lectura'],
-  stats: { groupsCreated: 1, groupsJoined: 7, totalMembers: 124 },
-  joinedDate: 'Enero 2024'
-};
-
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
   styleUrls: ['./profile.page.scss'],
   standalone: false
 })
-export class ProfilePage {
-  readonly profile: UserProfileDto = MY_PROFILE;
+export class ProfilePage implements ViewWillEnter {
+  profile: UserProfile | null = null;
+  isLoading = false;
 
   readonly settingsSections: SettingsSection[] = [
     {
@@ -73,16 +75,33 @@ export class ProfilePage {
     private actionSheet: ActionSheetController,
     public themeService: ThemeService,
     private authService: AuthService,
+    private apiService: ApiService,
   ) {}
+
+  ionViewWillEnter() {
+    this.isLoading = true;
+    this.apiService.getMyProfile().subscribe({
+      next: (p) => { this.profile = p; this.isLoading = false; },
+      error: () => { this.isLoading = false; }
+    });
+  }
+
+  get avatarColor(): string {
+    return this.profile ? avatarColor(this.profile.email) : '#6C63FF';
+  }
+
+  get initials(): string {
+    return this.profile ? initials(this.profile.name) : '?';
+  }
 
   get heroGradient(): string {
     const bg = this.themeService.theme === 'light' ? '#f2f1fb' : '#0f0c29';
-    return `linear-gradient(175deg, ${this.profile.avatarColor}55 0%, ${bg} 55%)`;
+    return `linear-gradient(175deg, ${this.avatarColor}55 0%, ${bg} 55%)`;
   }
 
   async onSettingTap(action: string) {
     if (action === 'editProfile') {
-      this.router.navigate(['/edit-profile']);
+      this.router.navigate(['/tabs/profile/edit-profile']);
       return;
     }
     if (action === 'changePassword') {

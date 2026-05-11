@@ -5,31 +5,40 @@
 
     <div class="hero-top-bar">
       <span class="hero-brand">Trivy</span>
-      <!-- <ion-button fill="clear" class="settings-btn">
-        <ion-icon name="settings-outline" slot="icon-only"></ion-icon>
-      </ion-button> -->
     </div>
 
-    <div class="avatar-wrap">
-      <div class="avatar" [style.background-color]="profile.avatarColor">
-        {{ profile.initials }}
+    @if (isLoading) {
+      <div class="avatar-wrap">
+        <div class="avatar" style="background-color: #6C63FF">?</div>
       </div>
-      <button class="camera-btn" type="button">
-        <ion-icon name="camera-outline"></ion-icon>
-      </button>
-    </div>
+      <ion-skeleton-text animated style="width: 40%; margin: 8px auto;"></ion-skeleton-text>
+      <ion-skeleton-text animated style="width: 60%; margin: 4px auto;"></ion-skeleton-text>
+    } @else if (profile) {
+      <div class="avatar-wrap">
+        <div class="avatar" [style.background-color]="avatarColor">
+          {{ initials }}
+        </div>
+        <button class="camera-btn" type="button">
+          <ion-icon name="camera-outline"></ion-icon>
+        </button>
+      </div>
 
-    <h1 class="profile-name">{{ profile.name }}</h1>
-    <p class="profile-username">{{ profile.username }}</p>
-    <p class="profile-bio">{{ profile.bio }}</p>
+      <h1 class="profile-name">{{ profile.name ?? profile.email }}</h1>
+      <p class="profile-username">{{ profile.email }}</p>
+      @if (profile.description) {
+        <p class="profile-bio">{{ profile.description }}</p>
+      }
 
-    <div class="location-row">
-      <ion-icon name="location-outline"></ion-icon>
-      <span>{{ profile.location }}</span>
-      <span class="dot-sep">·</span>
-      <ion-icon name="calendar-outline"></ion-icon>
-      <span>Desde {{ profile.joinedDate }}</span>
-    </div>
+      @if (profile.birthDate) {
+        <div class="location-row">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <span>{{ profile.birthDate }}</span>
+          <span class="dot-sep">·</span>
+          <ion-icon name="navigate-outline"></ion-icon>
+          <span>Radio {{ profile.searchRadiusKm }} km</span>
+        </div>
+      }
+    }
 
   </div>
 
