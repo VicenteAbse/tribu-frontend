@@ -101,13 +101,13 @@
       </div>
 
       <div class="chips-wrap">
-        @for (cat of categories; track cat) {
+        @for (cat of categories; track cat.value) {
           <button
             type="button"
             class="cat-chip"
-            [class.cat-selected]="catCtrl.value === cat"
-            (click)="selectCategory(cat)">
-            {{ cat }}
+            [class.cat-selected]="catCtrl.value === cat.value"
+            (click)="selectCategory(cat.value)">
+            {{ cat.label }}
           </button>
         }
       </div>
@@ -115,6 +115,66 @@
       @if (catCtrl.invalid && catCtrl.touched) {
         <p class="error-msg">Selecciona una categoría.</p>
       }
+    </div>
+
+    <!-- ── Preferencia de género ── -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">Preferencia de género</h3>
+      </div>
+
+      <div class="chips-wrap">
+        @for (g of genderOptions; track g.value) {
+          <button
+            type="button"
+            class="cat-chip"
+            [class.cat-selected]="genderCtrl.value === g.value"
+            (click)="selectGender(g.value)">
+            {{ g.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- ── Tamaño del grupo ── -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3 class="section-title">Tamaño del grupo</h3>
+      </div>
+
+      <div class="members-row">
+        <div class="member-field">
+          <label class="member-label">Mínimo de miembros</label>
+          <div class="field-box" [class.field-error]="minCtrl.invalid && minCtrl.touched">
+            <ion-icon name="person-outline" class="field-icon"></ion-icon>
+            <input
+              formControlName="minMembers"
+              type="number"
+              class="field-input"
+              min="2" max="50"
+              placeholder="5" />
+          </div>
+          @if (minCtrl.invalid && minCtrl.touched) {
+            <p class="error-msg">Entre 4 y 50.</p>
+          }
+        </div>
+
+        <div class="member-field">
+          <label class="member-label">Máximo de miembros</label>
+          <div class="field-box" [class.field-error]="maxCtrl.invalid && maxCtrl.touched">
+            <ion-icon name="people-outline" class="field-icon"></ion-icon>
+            <input
+              formControlName="maxMembers"
+              type="number"
+              class="field-input"
+              min="2" max="100"
+              placeholder="20" />
+          </div>
+          @if (maxCtrl.invalid && maxCtrl.touched) {
+            <p class="error-msg">Entre 4 y 100.</p>
+          }
+        </div>
+      </div>
     </div>
 
     <!-- ── Política de acceso ── -->

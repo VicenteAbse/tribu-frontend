@@ -202,6 +202,24 @@
   }
 }
 
+// ── Members row ───────────────────────────────
+.members-row {
+  display: flex;
+  gap: 12px;
+}
+
+.member-field {
+  flex: 1;
+}
+
+.member-label {
+  display: block;
+  font-size: 12px;
+  color: var(--c-text-7);
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
 // ── Join policy cards ─────────────────────────
 .policy-cards {
   display: flex;

@@ -4,7 +4,7 @@
 App social móvil para encontrar grupos de personas con intereses en común cerca de tu ubicación. El nombre de la app es **Trivy**.
 
 ## Stack tecnológico
-- **Framework:** Ionic 7 + Angular 20
+- **Framework:** Ionic 8 + Angular 20
 - **Arquitectura de componentes:** NgModule (NO standalone components)
 - **Formularios:** Reactive Forms (`ReactiveFormsModule`)
 - **Navegación:** Angular Router con lazy loading por módulo
@@ -93,6 +93,14 @@ Variables CSS en `src/theme/variables.scss`:
 - Login: degradado azul-violeta (`--trivy-gradient-login`)
 - Register: degradado rosa-violeta (`--trivy-gradient-register`)
 - Ion primary: `#6C63FF`, secondary: `#FF6584`
+
+## Backend
+- Ubicación: `/Users/vicenteabsehidalgo/Documents/Proyectos personales/tribu-backend`
+- Framework: Spring Boot (Java)
+- Enums que deben coincidir exactamente con el backend (ya tipados en `src/app/dtos/api.dto.ts`):
+  - `GroupCategory`: `DEPORTES | ARTE | CULTURA | TECNOLOGIA | MUSICA | GASTRONOMIA`
+  - `GenderPreference`: `MIXED | MEN_ONLY | WOMEN_ONLY`
+  - `JoinPolicy`: `OPEN | APPROVAL_REQUIRED`
 
 ## Integraciones pendientes
 - Autenticación con Google (botón presente, sin implementar)

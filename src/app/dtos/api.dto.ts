@@ -98,6 +98,7 @@ export interface CreateGroupRequest {
   category: GroupCategory;
   minMembers: number;
   maxMembers: number;
+  joinPolicy?: JoinPolicy;
   latitude?: number;
   longitude?: number;
 }
