@@ -18,24 +18,25 @@
               <ion-icon name="settings-outline" slot="icon-only"></ion-icon>
             </ion-button>
           }
-          <ion-button fill="clear" class="share-btn">
-            <ion-icon name="share-social-outline" slot="icon-only"></ion-icon>
-          </ion-button>
         </div>
       </div>
 
       <div class="hero-info">
-        <span class="category-badge">{{ group.category }}</span>
+        @if (group.category) {
+          <span class="category-badge">{{ group.category }}</span>
+        }
         <h1 class="hero-title">{{ group.name }}</h1>
         <div class="hero-meta">
           <div class="meta-chip">
             <ion-icon name="people-outline"></ion-icon>
             {{ group.memberCount }} miembros
           </div>
-          <div class="meta-chip">
-            <ion-icon name="location-outline"></ion-icon>
-            {{ group.distance }} km
-          </div>
+          @if (group.distanceKm != null) {
+            <div class="meta-chip">
+              <ion-icon name="location-outline"></ion-icon>
+              {{ group.distanceKm }} km
+            </div>
+          }
         </div>
       </div>
     </div>
@@ -46,15 +47,8 @@
       <!-- Sobre el grupo -->
       <section class="section">
         <h2 class="section-title">Sobre el grupo</h2>
-        <p class="section-text">{{ group.longDescription }}</p>
+        <p class="section-text">{{ group.description }}</p>
       </section>
-
-      <!-- Tags -->
-      <div class="tags-row">
-        @for (tag of group.tags; track tag) {
-          <span class="tag"># {{ tag }}</span>
-        }
-      </div>
 
       <!-- Eventos -->
       @if (upcomingEvents.length > 0) {
@@ -71,10 +65,12 @@
               <div class="event-info">
                 <p class="event-name">{{ event.title }}</p>
                 <p class="event-date">{{ event.date }}</p>
-                <p class="event-location">
-                  <ion-icon name="location-outline"></ion-icon>
-                  {{ event.location }}
-                </p>
+                @if (event.location) {
+                  <p class="event-location">
+                    <ion-icon name="location-outline"></ion-icon>
+                    {{ event.location }}
+                  </p>
+                }
               </div>
             </div>
           }
@@ -97,19 +93,11 @@
                 {{ member.initials }}
                 @if (member.role === 'admin') {
                   <span class="admin-crown">
-                    <ion-icon name="star" ></ion-icon>
+                    <ion-icon name="star"></ion-icon>
                   </span>
                 }
               </div>
               <span class="member-name">{{ member.name.split(' ')[0] }}</span>
-            </div>
-          }
-          @if (group.memberCount > group.members.length) {
-            <div class="member-item">
-              <div class="member-avatar more-avatar">
-                +{{ group.memberCount - group.members.length }}
-              </div>
-              <span class="member-name">más</span>
             </div>
           }
         </div>
@@ -121,17 +109,28 @@
         <p>Creado por <strong>{{ group.createdBy }}</strong></p>
       </section>
 
-      <!-- Spacer para el botón fijo -->
       <div style="height: 96px;"></div>
 
     </div>
 
     <!-- Footer fijo -->
     <div class="sticky-footer">
-      <ion-button expand="block" class="join-btn">
-        <ion-icon name="heart-outline" slot="start"></ion-icon>
-        Unirse al grupo
-      </ion-button>
+      @if (isMember && group.status === 'ACTIVE') {
+        <ion-button expand="block" class="join-btn" (click)="goToChat()">
+          <ion-icon name="chatbubbles-outline" slot="start"></ion-icon>
+          Ir al chat
+        </ion-button>
+      } @else if (isMember) {
+        <ion-button expand="block" class="join-btn" disabled>
+          <ion-icon name="time-outline" slot="start"></ion-icon>
+          En espera de más miembros
+        </ion-button>
+      } @else {
+        <ion-button expand="block" class="join-btn" disabled>
+          <ion-icon name="heart-outline" slot="start"></ion-icon>
+          Únete dando like desde el explorador
+        </ion-button>
+      }
     </div>
 
   </ion-content>

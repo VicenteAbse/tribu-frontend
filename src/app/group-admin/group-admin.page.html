@@ -139,8 +139,8 @@
 
             <div class="form-field">
               <label class="form-label">Fecha y hora *</label>
-              <input class="form-input" type="text" placeholder="Ej: Sáb 17 Mayo · 9:00 AM" formControlName="date" />
-              @if (eventForm.get('date')!.touched && eventForm.get('date')!.hasError('required')) {
+              <input class="form-input" type="datetime-local" formControlName="eventDate" />
+              @if (eventForm.get('eventDate')!.touched && eventForm.get('eventDate')!.hasError('required')) {
                 <p class="form-error">La fecha es obligatoria</p>
               }
             </div>

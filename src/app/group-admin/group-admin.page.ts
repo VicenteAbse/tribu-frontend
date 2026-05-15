@@ -2,9 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ActionSheetController, AlertController, NavController } from '@ionic/angular';
+import { ApiService } from '../services/api.service';
+import { GroupEvent, GroupMember, JoinRequest } from '../dtos/api.dto';
 import { GroupEventDto } from '../dtos/group-event.dto';
 import { JoinRequestDto } from '../dtos/join-request.dto';
 import { GroupMemberDto } from '../dtos/group-detail.dto';
+
+const GROUP_COLORS = ['#4ECDC4', '#FF6584', '#6C63FF', '#F7B731', '#A55EEA', '#FC5C65', '#26de81', '#45AAB8', '#f7797d'];
+
+const CATEGORY_LABELS: Record<string, string> = {
+  DEPORTES: 'Deportes', ARTE: 'Arte', CULTURA: 'Cultura',
+  TECNOLOGIA: 'Tecnología', MUSICA: 'Música', GASTRONOMIA: 'Gastronomía'
+};
 
 interface AdminGroupData {
   id: number;
@@ -14,66 +23,7 @@ interface AdminGroupData {
   joinPolicy: 'open' | 'approval';
   description: string;
   category: string;
-  members: GroupMemberDto[];
-  pendingRequests: JoinRequestDto[];
-  events: GroupEventDto[];
 }
-
-const ADMIN_DATA: Record<number, AdminGroupData> = {
-  1: {
-    id: 1, name: 'Senderismo Urbano', backgroundColor: '#4ECDC4',
-    viewerRole: 'admin', joinPolicy: 'approval',
-    description: 'Exploramos senderos y parques naturales cada fin de semana. Todos los niveles bienvenidos.',
-    category: 'Deporte & Naturaleza',
-    members: [
-      { id: 1, name: 'Ana García',   initials: 'AG', role: 'admin'  },
-      { id: 2, name: 'Carlos López', initials: 'CL', role: 'member' },
-      { id: 3, name: 'María Torres', initials: 'MT', role: 'member' },
-      { id: 4, name: 'Pedro Ruiz',   initials: 'PR', role: 'member', isMuted: true },
-      { id: 5, name: 'Lucía Méndez', initials: 'LM', role: 'member' },
-      { id: 6, name: 'Diego Vargas', initials: 'DV', role: 'member' }
-    ],
-    pendingRequests: [
-      { id: 1, userId: 20, userName: 'Roberto Sánchez', userInitials: 'RS', userAvatarColor: '#FF6584', bio: 'Fanático del trekking y la montaña 🏔️', requestedAt: 'Hace 2 horas' },
-      { id: 2, userId: 21, userName: 'Carmen Ibáñez',   userInitials: 'CI', userAvatarColor: '#F7B731', bio: 'Me encanta la naturaleza y el deporte al aire libre.', requestedAt: 'Hace 5 horas' },
-      { id: 3, userId: 22, userName: 'Felipe Morales',  userInitials: 'FM', userAvatarColor: '#A55EEA', bio: 'Principiante en senderismo pero con muchas ganas de aprender.', requestedAt: 'Ayer' }
-    ],
-    events: [
-      { id: 1, title: 'Ruta Norte del Parque',      description: 'Senderismo de dificultad media, ~2 horas.', date: 'Sáb 10 Mayo · 8:00 AM',  location: 'Parque Metropolitano Norte', createdBy: 'Ana García', isPast: false },
-      { id: 2, title: 'Taller de Foto en Ruta',     description: 'Fotografía de paisajes mientras caminamos.', date: 'Sáb 17 Mayo · 9:00 AM', location: 'Parque Mapocho',            createdBy: 'Ana García', isPast: false },
-      { id: 3, title: 'Ruta del Río',               description: 'Ruta de 3 horas siguiendo el cauce del río.', date: 'Sáb 3 Mayo · 8:30 AM', location: 'Río Mapocho sur',           createdBy: 'Ana García', isPast: true  }
-    ]
-  },
-  3: {
-    id: 3, name: 'Fotografía Callejera', backgroundColor: '#6C63FF',
-    viewerRole: 'creator', joinPolicy: 'open',
-    description: 'Salimos a capturar la esencia de la ciudad a través del lente.',
-    category: 'Arte & Creatividad',
-    members: [
-      { id: 1, name: 'Tomás Reyes',  initials: 'TR', role: 'admin'  },
-      { id: 2, name: 'Isabel Lara',  initials: 'IL', role: 'member' },
-      { id: 3, name: 'Rafael Díaz',  initials: 'RD', role: 'member' },
-      { id: 4, name: 'Carmen Vega',  initials: 'CV', role: 'member' },
-      { id: 5, name: 'Miguel Ángel', initials: 'MA', role: 'member' },
-      { id: 6, name: 'Natalia Ríos', initials: 'NR', role: 'member' }
-    ],
-    pendingRequests: [],
-    events: [
-      { id: 1, title: 'Street Photo: Barrio Histórico', description: 'Capturamos la vida cotidiana del centro.', date: 'Dom 11 Mayo · 10:00 AM', location: 'Plaza Mayor',  createdBy: 'Tomás Reyes', isPast: false },
-      { id: 2, title: 'Salida Nocturna',                description: 'Fotografía nocturna urbana.',              date: 'Vie 16 Mayo · 9:00 PM',  location: 'Barrio Italia', createdBy: 'Tomás Reyes', isPast: false }
-    ]
-  }
-};
-
-const COLOR_PALETTE = [
-  '#4ECDC4', '#6C63FF', '#FF6584', '#F7B731',
-  '#A55EEA', '#FC5C65', '#26de81', '#fd9644', '#2d98da'
-];
-
-const CATEGORIES = [
-  'Deporte & Naturaleza', 'Cultura & Lectura', 'Arte & Creatividad',
-  'Tecnología', 'Música', 'Gastronomía'
-];
 
 @Component({
   selector: 'app-group-admin',
@@ -94,21 +44,11 @@ export class GroupAdminPage implements OnInit {
   editForm: FormGroup;
   editImageSlots: (string | null)[] = [null, null, null];
 
-  readonly categories = CATEGORIES;
+  readonly categories = ['Deportes', 'Arte', 'Cultura', 'Tecnología', 'Música', 'Gastronomía'];
 
   readonly joinPolicies: { value: 'open' | 'approval'; label: string; sub: string; icon: string }[] = [
-    {
-      value: 'open',
-      label: 'Acceso libre',
-      sub: 'Cualquiera que da like se une directamente al grupo.',
-      icon: 'flash-outline'
-    },
-    {
-      value: 'approval',
-      label: 'Con aprobación',
-      sub: 'El creador o un admin debe aprobar cada solicitud de ingreso.',
-      icon: 'shield-checkmark-outline'
-    }
+    { value: 'open',     label: 'Acceso libre',    sub: 'Cualquiera que da like se une directamente.',        icon: 'flash-outline' },
+    { value: 'approval', label: 'Con aprobación',  sub: 'Un admin debe aprobar cada solicitud de ingreso.',   icon: 'shield-checkmark-outline' }
   ];
 
   get segments() {
@@ -127,12 +67,13 @@ export class GroupAdminPage implements OnInit {
     private navCtrl: NavController,
     private actionSheetCtrl: ActionSheetController,
     private alertCtrl: AlertController,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private api: ApiService
   ) {
     this.eventForm = this.fb.group({
       title:       ['', Validators.required],
       description: [''],
-      date:        ['', Validators.required],
+      eventDate:   ['', Validators.required],
       location:    ['']
     });
 
@@ -146,22 +87,75 @@ export class GroupAdminPage implements OnInit {
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    const data = ADMIN_DATA[id];
-    if (!data) { this.navCtrl.back(); return; }
 
-    this.group = data;
-    this.members = [...data.members];
-    this.pendingRequests = [...data.pendingRequests];
-    this.events = [...data.events];
+    Promise.all([
+      this.api.getGroup(id).toPromise(),
+      this.api.getGroupEvents(id).toPromise().catch(() => [] as GroupEvent[]),
+      this.api.getJoinRequests(id).toPromise().catch(() => [] as JoinRequest[])
+    ]).then(([detail, events, requests]) => {
+      if (!detail) { this.navCtrl.back(); return; }
 
-    this.activeSegment = 'members';
+      this.group = {
+        id: detail.id,
+        name: detail.name,
+        backgroundColor: GROUP_COLORS[detail.id % GROUP_COLORS.length],
+        viewerRole: 'admin',
+        joinPolicy: detail.joinPolicy === 'OPEN' ? 'open' : 'approval',
+        description: detail.description,
+        category: CATEGORY_LABELS[detail.category ?? ''] ?? (detail.category ?? '')
+      };
 
-    this.editForm.patchValue({
-      name: data.name, description: data.description,
-      category: data.category, joinPolicy: data.joinPolicy
-    });
+      this.members = detail.members.map(m => this.toMemberDisplay(m));
+      this.events  = (events  as GroupEvent[]).map(e => this.toEventDisplay(e));
+      this.pendingRequests = (requests as JoinRequest[]).map(r => this.toRequestDisplay(r));
 
-    this.editImageSlots = [data.backgroundColor, null, null];
+      this.editForm.patchValue({
+        name:       detail.name,
+        description: detail.description,
+        category:   CATEGORY_LABELS[detail.category ?? ''] ?? (detail.category ?? ''),
+        joinPolicy: detail.joinPolicy === 'OPEN' ? 'open' : 'approval'
+      });
+
+      this.editImageSlots = [GROUP_COLORS[detail.id % GROUP_COLORS.length], null, null];
+    }).catch(() => this.navCtrl.back());
+  }
+
+  private toMemberDisplay(m: GroupMember): GroupMemberDto {
+    const parts = m.name.trim().split(' ');
+    const initials = parts.length >= 2
+      ? (parts[0][0] + parts[1][0]).toUpperCase()
+      : m.name.substring(0, 2).toUpperCase();
+    return { id: m.id, name: m.name, initials, role: m.role === 'ADMIN' ? 'admin' : 'member', isMuted: m.muted };
+  }
+
+  private toEventDisplay(e: GroupEvent): GroupEventDto {
+    const date = new Date(e.eventDate);
+    return {
+      id: e.id,
+      title: e.title,
+      description: e.description,
+      date: date.toLocaleString('es', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+      location: e.location,
+      createdBy: e.creatorName,
+      isPast: date < new Date()
+    };
+  }
+
+  private toRequestDisplay(r: JoinRequest): JoinRequestDto {
+    const parts = r.name.trim().split(' ');
+    const initials = parts.length >= 2
+      ? (parts[0][0] + parts[1][0]).toUpperCase()
+      : r.name.substring(0, 2).toUpperCase();
+    const date = new Date(r.createdAt);
+    return {
+      id: r.id,
+      userId: r.userId,
+      userName: r.name,
+      userInitials: initials,
+      userAvatarColor: GROUP_COLORS[r.userId % GROUP_COLORS.length],
+      bio: r.email,
+      requestedAt: date.toLocaleDateString('es', { day: 'numeric', month: 'short' })
+    };
   }
 
   goBack() { this.navCtrl.back(); }
@@ -173,12 +167,22 @@ export class GroupAdminPage implements OnInit {
 
   // ── Solicitudes ───────────────────────────────
   approveRequest(req: JoinRequestDto) {
-    this.pendingRequests = this.pendingRequests.filter(r => r.id !== req.id);
-    this.members.push({ id: req.userId, name: req.userName, initials: req.userInitials, role: 'member' });
+    this.api.approveJoinRequest(this.group!.id, req.id).subscribe({
+      next: () => {
+        this.pendingRequests = this.pendingRequests.filter(r => r.id !== req.id);
+        this.api.getMembers(this.group!.id).subscribe(members => {
+          this.members = members.map(m => this.toMemberDisplay(m));
+        });
+      }
+    });
   }
 
   rejectRequest(req: JoinRequestDto) {
-    this.pendingRequests = this.pendingRequests.filter(r => r.id !== req.id);
+    this.api.rejectJoinRequest(this.group!.id, req.id).subscribe({
+      next: () => {
+        this.pendingRequests = this.pendingRequests.filter(r => r.id !== req.id);
+      }
+    });
   }
 
   // ── Miembros ──────────────────────────────────
@@ -190,12 +194,20 @@ export class GroupAdminPage implements OnInit {
         {
           text: 'Asignar como admin',
           icon: 'shield-outline',
-          handler: () => { member.role = 'admin'; }
+          handler: () => {
+            this.api.promoteMember(this.group!.id, member.id).subscribe({
+              next: () => { member.role = 'admin'; }
+            });
+          }
         },
         {
           text: member.isMuted ? 'Desactivar silencio' : 'Silenciar',
           icon: member.isMuted ? 'volume-high-outline' : 'volume-mute-outline',
-          handler: () => { member.isMuted = !member.isMuted; }
+          handler: () => {
+            this.api.muteMember(this.group!.id, member.id).subscribe({
+              next: (updated) => { member.isMuted = updated.muted; }
+            });
+          }
         },
         {
           text: 'Expulsar del grupo',
@@ -219,7 +231,11 @@ export class GroupAdminPage implements OnInit {
         {
           text: 'Expulsar',
           role: 'destructive',
-          handler: () => { this.members = this.members.filter(m => m.id !== member.id); }
+          handler: () => {
+            this.api.removeMember(this.group!.id, member.id).subscribe({
+              next: () => { this.members = this.members.filter(m => m.id !== member.id); }
+            });
+          }
         }
       ]
     });
@@ -231,13 +247,16 @@ export class GroupAdminPage implements OnInit {
     this.eventForm.markAllAsTouched();
     if (this.eventForm.invalid) return;
 
-    const { title, description, date, location } = this.eventForm.value;
-    this.events = [
-      { id: Date.now(), title, description, date, location, createdBy: 'Tú', isPast: false },
-      ...this.events
-    ];
-    this.eventForm.reset();
-    this.showEventForm = false;
+    const { title, description, eventDate, location } = this.eventForm.value;
+    const eventDateStr = (eventDate as string).length === 16 ? eventDate + ':00' : eventDate;
+
+    this.api.createGroupEvent(this.group!.id, { title, description, eventDate: eventDateStr, location }).subscribe({
+      next: (event) => {
+        this.events = [this.toEventDisplay(event), ...this.events];
+        this.eventForm.reset();
+        this.showEventForm = false;
+      }
+    });
   }
 
   // ── Editar grupo ──────────────────────────────
@@ -247,8 +266,8 @@ export class GroupAdminPage implements OnInit {
 
   cycleEditSlotColor(index: number) {
     const current = this.editImageSlots[index];
-    const idx = current ? COLOR_PALETTE.indexOf(current) : -1;
-    this.editImageSlots[index] = COLOR_PALETTE[(idx + 1) % COLOR_PALETTE.length];
+    const idx = current ? GROUP_COLORS.indexOf(current) : -1;
+    this.editImageSlots[index] = GROUP_COLORS[(idx + 1) % GROUP_COLORS.length];
   }
 
   clearEditSlot(index: number, event: Event) {
@@ -262,7 +281,14 @@ export class GroupAdminPage implements OnInit {
   saveGroupEdit() {
     this.editForm.markAllAsTouched();
     if (this.editForm.invalid) return;
-    console.log('Guardando grupo:', this.editForm.value);
-    this.navCtrl.back();
+
+    const { name, description, joinPolicy } = this.editForm.value;
+    this.api.updateGroup(this.group!.id, {
+      name,
+      description,
+      joinPolicy: joinPolicy === 'open' ? 'OPEN' : 'APPROVAL_REQUIRED'
+    }).subscribe({
+      next: () => this.navCtrl.back()
+    });
   }
 }

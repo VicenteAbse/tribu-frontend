@@ -70,7 +70,7 @@ export class CreateGroupPage implements OnInit {
       description:      ['', [Validators.required, Validators.minLength(10), Validators.maxLength(300)]],
       genderPreference: ['MIXED', Validators.required],
       category:         ['', Validators.required],
-      minMembers:       [5,  [Validators.required, Validators.min(4), Validators.max(50)]],
+      minMembers:       [2,  [Validators.required, Validators.min(2), Validators.max(50)]],
       maxMembers:       [20, [Validators.required, Validators.min(4), Validators.max(100)]],
       joinPolicy:       ['OPEN', Validators.required]
     });

@@ -89,6 +89,7 @@ export interface GroupMember {
 
 export interface GroupDetail extends GroupDiscovery {
   members: GroupMember[];
+  joinPolicy: string;
 }
 
 export interface CreateGroupRequest {
