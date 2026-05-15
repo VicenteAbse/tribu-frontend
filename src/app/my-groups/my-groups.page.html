@@ -78,9 +78,13 @@
   <div class="group-item" (click)="openGroup(group)">
 
     <div class="avatar-wrapper">
-      <div class="group-avatar" [style.background-color]="group.backgroundColor">
-        {{ group.name[0] }}
-      </div>
+      @if (group.coverImageBase64) {
+        <img class="group-avatar group-avatar-img" [src]="'data:image/jpeg;base64,' + group.coverImageBase64" [alt]="group.name" />
+      } @else {
+        <div class="group-avatar" [style.background-color]="group.backgroundColor">
+          {{ group.name[0] }}
+        </div>
+      }
       @if (group.role === 'admin') {
         <span class="role-dot admin-dot">
           <ion-icon name="shield"></ion-icon>

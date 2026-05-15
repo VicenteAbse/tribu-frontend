@@ -35,6 +35,34 @@
   font-weight: 800;
   color: rgba(255, 255, 255, 0.9);
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.header-avatar-img {
+  object-fit: cover;
+  width: 38px;
+  height: 38px;
+}
+
+.header-skeleton {
+  cursor: default;
+  &:active { background: transparent; }
+}
+
+.skeleton-circle {
+  background: var(--c-surface-2);
+  flex-shrink: 0;
+}
+
+.skeleton-messages {
+  gap: 10px;
+
+  .msg-row { margin-bottom: 0; }
+
+  ion-skeleton-text {
+    --border-radius: 18px;
+    margin: 0;
+  }
 }
 
 .header-info {

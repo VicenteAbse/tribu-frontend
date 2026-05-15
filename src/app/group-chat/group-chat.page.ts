@@ -7,6 +7,15 @@ import { Message } from '../dtos/api.dto';
 
 const GROUP_COLORS = ['#4ECDC4', '#FF6584', '#6C63FF', '#F7B731', '#A55EEA', '#FC5C65', '#26de81', '#45AAB8', '#f7797d'];
 
+interface GroupInfo {
+  id: number;
+  uuid: string;
+  name: string;
+  backgroundColor: string;
+  coverImageBase64: string | null;
+  memberCount: number;
+}
+
 @Component({
   selector: 'app-group-chat',
   templateUrl: './group-chat.page.html',
@@ -16,8 +25,9 @@ const GROUP_COLORS = ['#4ECDC4', '#FF6584', '#6C63FF', '#F7B731', '#A55EEA', '#F
 export class GroupChatPage implements OnInit, AfterViewInit {
   @ViewChild(IonContent) content!: IonContent;
 
-  groupId!: number;
-  group: { id: number; name: string; backgroundColor: string; memberCount: number } | null = null;
+  groupUuid!: string;
+  group: GroupInfo | null = null;
+  isLoading = true;
   messages: ChatMessageDto[] = [];
   newMessage = '';
   pinnedDismissed = false;
@@ -33,7 +43,7 @@ export class GroupChatPage implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    this.groupId = Number(this.route.snapshot.paramMap.get('id'));
+    this.groupUuid = this.route.snapshot.paramMap.get('id')!;
     this.loadData();
   }
 
@@ -42,23 +52,27 @@ export class GroupChatPage implements OnInit, AfterViewInit {
   }
 
   private loadData() {
+    this.isLoading = true;
     Promise.all([
       this.api.getMyProfile().toPromise(),
-      this.api.getGroup(this.groupId).toPromise(),
-      this.api.getMessages(this.groupId, 0, 50).toPromise()
+      this.api.getGroup(this.groupUuid).toPromise(),
+      this.api.getMessages(this.groupUuid, 0, 50).toPromise()
     ]).then(([profile, groupDetail, page]) => {
       this.currentUserName = profile!.name;
       this.group = {
         id: groupDetail!.id,
+        uuid: groupDetail!.uuid,
         name: groupDetail!.name,
         backgroundColor: GROUP_COLORS[groupDetail!.id % GROUP_COLORS.length],
+        coverImageBase64: groupDetail!.coverImageBase64 ?? null,
         memberCount: groupDetail!.members.length
       };
       this.messages = page!.content.map(m => this.toDto(m));
+      this.isLoading = false;
       this.scrollToBottom();
     }).catch((e) => {
       this.errorMsg = e?.error?.message ?? 'No se pudo cargar el chat';
-      this.group = null;
+      this.isLoading = false;
     });
   }
 
@@ -90,7 +104,7 @@ export class GroupChatPage implements OnInit, AfterViewInit {
 
   goToGroupDetail() {
     if (this.group) {
-      this.router.navigate(['/group-detail', this.group.id]);
+      this.router.navigate(['/group-detail', this.groupUuid]);
     }
   }
 
@@ -99,7 +113,7 @@ export class GroupChatPage implements OnInit, AfterViewInit {
     if (!text) return;
 
     this.newMessage = '';
-    this.api.sendMessage(this.groupId, { content: text }).subscribe({
+    this.api.sendMessage(this.groupUuid, { content: text }).subscribe({
       next: (msg) => {
         this.messages.push(this.toDto(msg));
         this.scrollToBottom();

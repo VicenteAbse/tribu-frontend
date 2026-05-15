@@ -15,12 +15,17 @@
       <ion-skeleton-text animated style="width: 60%; margin: 4px auto;"></ion-skeleton-text>
     } @else if (profile) {
       <div class="avatar-wrap">
-        <div class="avatar" [style.background-color]="avatarColor">
-          {{ initials }}
-        </div>
-        <button class="camera-btn" type="button">
-          <ion-icon name="camera-outline"></ion-icon>
+        @if (profile?.avatarBase64) {
+          <img class="avatar avatar-img" [src]="'data:image/jpeg;base64,' + profile!.avatarBase64" alt="Avatar" />
+        } @else {
+          <div class="avatar" [style.background-color]="avatarColor">
+            {{ initials }}
+          </div>
+        }
+        <button class="camera-btn" type="button" (click)="onCameraClick()" [disabled]="isUploadingAvatar">
+          <ion-icon [name]="isUploadingAvatar ? 'hourglass-outline' : 'camera-outline'"></ion-icon>
         </button>
+        <input #fileInput type="file" accept="image/*" style="display:none" (change)="onFileSelected($event)" />
       </div>
 
       <h1 class="profile-name">{{ profile.name ?? profile.email }}</h1>

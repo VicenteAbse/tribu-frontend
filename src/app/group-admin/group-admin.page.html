@@ -18,7 +18,7 @@
         </div>
       </div>
 
-      @if (group.viewerRole === 'creator') {
+      @if (group.myRole === 'owner') {
         <div slot="end" class="creator-badge">Creador</div>
       }
     </ion-toolbar>
@@ -90,7 +90,9 @@
             <div class="member-info">
               <span class="member-name">{{ member.name }}</span>
               <div class="member-tags">
-                @if (member.role === 'admin') {
+                @if (member.role === 'owner') {
+                  <span class="role-chip owner-chip">Creador</span>
+                } @else if (member.role === 'admin') {
                   <span class="role-chip admin-chip">Admin</span>
                 }
                 @if (member.isMuted) {
@@ -100,7 +102,7 @@
                 }
               </div>
             </div>
-            @if (member.role !== 'admin') {
+            @if (canActOn(member)) {
               <button class="menu-btn" type="button" (click)="openMemberActions(member)">
                 <ion-icon name="ellipsis-vertical-outline"></ion-icon>
               </button>
@@ -211,30 +213,42 @@
     @if (activeSegment === 'edit') {
       <form [formGroup]="editForm" (ngSubmit)="saveGroupEdit()">
 
-        <!-- Imágenes -->
+        <!-- Imagen de portada -->
         <div class="form-section">
           <div class="section-header">
-            <h3 class="section-title">Imágenes del grupo</h3>
-            <span class="section-hint">{{ editFilledSlots }}/3 · Toca para elegir color</span>
+            <h3 class="section-title">Imagen de portada</h3>
+            <span class="section-hint">Aparece en el explorador</span>
           </div>
           <div class="image-slots">
-            @for (slot of editImageSlots; track $index; let i = $index) {
-              <div
-                class="image-slot"
-                [class.filled]="!!slot"
-                [style.background-color]="slot ?? 'transparent'"
-                (click)="cycleEditSlotColor(i)">
-                @if (!slot) {
-                  <div class="slot-empty">
-                    <ion-icon name="image-outline"></ion-icon>
-                    <span>Agregar</span>
-                  </div>
-                } @else {
-                  <button class="slot-clear" type="button" (click)="clearEditSlot(i, $event)">
-                    <ion-icon name="close-circle"></ion-icon>
-                  </button>
-                  <ion-icon name="color-palette-outline" class="slot-palette-icon"></ion-icon>
-                }
+            <!-- Slot 0: portada real -->
+            <div
+              class="image-slot filled"
+              (click)="onCoverSlotClick()">
+              @if (isUploadingCover) {
+                <div class="slot-uploading">
+                  <ion-icon name="hourglass-outline"></ion-icon>
+                </div>
+              } @else if (group.coverImageBase64) {
+                <img class="slot-cover-img" [src]="'data:image/jpeg;base64,' + group.coverImageBase64" alt="Portada" />
+                <div class="slot-cover-overlay">
+                  <ion-icon name="camera-outline"></ion-icon>
+                </div>
+              } @else {
+                <div class="slot-empty">
+                  <ion-icon name="image-outline"></ion-icon>
+                  <span>Portada</span>
+                </div>
+              }
+            </div>
+            <input #coverInput type="file" accept="image/*" style="display:none" (change)="onCoverFileSelected($event)" />
+
+            <!-- Slots 1-2: decorativos (próximamente) -->
+            @for (slot of [editImageSlots[1], editImageSlots[2]]; track $index) {
+              <div class="image-slot" [style.background-color]="slot ?? 'transparent'">
+                <div class="slot-empty">
+                  <ion-icon name="image-outline"></ion-icon>
+                  <span>Pronto</span>
+                </div>
               </div>
             }
           </div>

@@ -6,10 +6,12 @@ import { GroupSummary } from '../dtos/api.dto';
 const GROUP_COLORS = ['#4ECDC4', '#FF6584', '#6C63FF', '#F7B731', '#A55EEA', '#FC5C65', '#26de81', '#45AAB8', '#f7797d'];
 
 interface GroupDisplay {
+  uuid: string;
   id: number;
   name: string;
   description: string;
   backgroundColor: string;
+  coverImageBase64: string | null;
   role: 'admin' | 'member';
   statusLabel: string;
 }
@@ -36,11 +38,13 @@ export class MyGroupsPage implements OnInit {
 
   private toDisplay(g: GroupSummary): GroupDisplay {
     return {
+      uuid: g.uuid,
       id: g.id,
       name: g.name,
       description: g.description,
       backgroundColor: GROUP_COLORS[g.id % GROUP_COLORS.length],
-      role: g.role === 'ADMIN' ? 'admin' : 'member',
+      coverImageBase64: g.coverImageBase64 ?? null,
+      role: (g.role === 'ADMIN' || g.role === 'OWNER') ? 'admin' : 'member',
       statusLabel: g.status === 'ACTIVE' ? 'Chat activo' : 'En espera de miembros'
     };
   }
@@ -63,7 +67,7 @@ export class MyGroupsPage implements OnInit {
   }
 
   openGroup(group: GroupDisplay) {
-    this.router.navigate(['/group-chat', group.id]);
+    this.router.navigate(['/group-chat', group.uuid]);
   }
 
   goToCreateGroup() {

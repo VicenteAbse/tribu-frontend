@@ -291,7 +291,7 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy, ViewWillEnter {
 
     const currentGroup = this.groups[this.currentIndex];
     if (currentGroup) {
-      this.apiService.swipeGroup(currentGroup.id, { liked }).subscribe();
+      this.apiService.swipeGroup(currentGroup.uuid, { liked }).subscribe();
     }
 
     const x = liked ? window.innerWidth + 200 : -(window.innerWidth + 200);
@@ -323,6 +323,6 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy, ViewWillEnter {
 
   openDetail(group: GroupDiscovery) {
     if (this.movedPx > 10) return;
-    this.router.navigate(['/group-detail', group.id]);
+    this.router.navigate(['/group-detail', group.uuid]);
   }
 }

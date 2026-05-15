@@ -166,6 +166,10 @@
   letter-spacing: -0.5px;
 }
 
+.group-avatar-img {
+  object-fit: cover;
+}
+
 // ── Role dots ─────────────────────────────────
 .role-dot {
   position: absolute;

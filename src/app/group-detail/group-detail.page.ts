@@ -27,6 +27,7 @@ interface EventDisplay {
 }
 
 interface GroupDisplay {
+  uuid: string;
   id: number;
   name: string;
   description: string;
@@ -34,6 +35,7 @@ interface GroupDisplay {
   memberCount: number;
   distanceKm: number | null;
   backgroundColor: string;
+  coverImageBase64: string | null;
   createdBy: string;
   status: GroupStatus;
   members: MemberDisplay[];
@@ -59,23 +61,24 @@ export class GroupDetailPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.loadData(id);
+    const uuid = this.route.snapshot.paramMap.get('id')!;
+    this.loadData(uuid);
   }
 
-  private loadData(id: number) {
+  private loadData(uuid: string) {
     Promise.all([
       this.api.getMyProfile().toPromise(),
-      this.api.getGroup(id).toPromise(),
-      this.api.getGroupEvents(id).toPromise().catch(() => [])
+      this.api.getGroup(uuid).toPromise(),
+      this.api.getGroupEvents(uuid).toPromise().catch(() => [])
     ]).then(([profile, detail, events]) => {
       const myEmail = profile!.email;
       const myMembership = detail!.members.find(m => m.email === myEmail);
 
       this.isMember = !!myMembership;
-      this.isAdmin = myMembership?.role === 'ADMIN';
+      this.isAdmin = myMembership?.role === 'ADMIN' || myMembership?.role === 'OWNER';
 
       this.group = {
+        uuid: detail!.uuid,
         id: detail!.id,
         name: detail!.name,
         description: detail!.description,
@@ -83,6 +86,7 @@ export class GroupDetailPage implements OnInit {
         memberCount: detail!.members.length,
         distanceKm: detail!.distanceKm,
         backgroundColor: GROUP_COLORS[detail!.id % GROUP_COLORS.length],
+        coverImageBase64: detail!.coverImageBase64 ?? null,
         createdBy: detail!.creatorName,
         status: detail!.status,
         members: detail!.members.map(m => this.toMemberDisplay(m)),
@@ -117,6 +121,6 @@ export class GroupDetailPage implements OnInit {
   }
 
   goBack()    { this.navCtrl.back(); }
-  goToAdmin() { if (this.group) this.router.navigate(['/group-admin', this.group.id]); }
-  goToChat()  { if (this.group) this.router.navigate(['/group-chat',  this.group.id]); }
+  goToAdmin() { if (this.group) this.router.navigate(['/group-admin', this.group.uuid]); }
+  goToChat()  { if (this.group) this.router.navigate(['/group-chat',  this.group.uuid]); }
 }

@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { ActionSheetController, ViewWillEnter } from '@ionic/angular';
+import { ActionSheetController, ToastController, ViewWillEnter } from '@ionic/angular';
 import { ThemeService } from '../services/theme.service';
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
@@ -39,8 +39,11 @@ interface SettingsSection {
   standalone: false
 })
 export class ProfilePage implements ViewWillEnter {
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
   profile: UserProfile | null = null;
   isLoading = false;
+  isUploadingAvatar = false;
 
   readonly settingsSections: SettingsSection[] = [
     {
@@ -48,23 +51,17 @@ export class ProfilePage implements ViewWillEnter {
       items: [
         { icon: 'person-outline',       label: 'Editar perfil',       iconBg: '#6C63FF', action: 'editProfile'     },
         { icon: 'lock-closed-outline',  label: 'Cambiar contraseña',  iconBg: '#6C63FF', action: 'changePassword'  },
-        // { icon: 'image-outline',        label: 'Foto de perfil',      iconBg: '#6C63FF', action: 'editPhoto'       }
       ]
     },
     {
       title: 'Preferencias',
       items: [
-        // { icon: 'notifications-outline', label: 'Notificaciones',     iconBg: '#4ECDC4', action: 'notifications'  },
-        // { icon: 'eye-outline',           label: 'Privacidad',         iconBg: '#4ECDC4', action: 'privacy'        },
-        // { icon: 'language-outline',      label: 'Idioma',             iconBg: '#4ECDC4', action: 'language', value: 'Español' },
         { icon: 'color-palette-outline', label: 'Apariencia',         iconBg: '#4ECDC4', action: 'appearance', value: 'Oscuro' }
       ]
     },
     {
       title: 'Soporte',
       items: [
-        // { icon: 'help-circle-outline',   label: 'Centro de ayuda',       iconBg: '#F7B731', action: 'help'   },
-        // { icon: 'chatbox-outline',       label: 'Contactar soporte',     iconBg: '#F7B731', action: 'support'},
         { icon: 'flag-outline',          label: 'Reportar un problema',  iconBg: '#F7B731', action: 'report' }
       ]
     }
@@ -73,6 +70,7 @@ export class ProfilePage implements ViewWillEnter {
   constructor(
     private router: Router,
     private actionSheet: ActionSheetController,
+    private toastCtrl: ToastController,
     public themeService: ThemeService,
     private authService: AuthService,
     private apiService: ApiService,
@@ -97,6 +95,40 @@ export class ProfilePage implements ViewWillEnter {
   get heroGradient(): string {
     const bg = this.themeService.theme === 'light' ? '#f2f1fb' : '#0f0c29';
     return `linear-gradient(175deg, ${this.avatarColor}55 0%, ${bg} 55%)`;
+  }
+
+  onCameraClick() {
+    this.fileInput.nativeElement.click();
+  }
+
+  async onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64 = (reader.result as string).split(',')[1];
+      this.isUploadingAvatar = true;
+      try {
+        const updated = await this.apiService.updateAvatar({ imageBase64: base64 }).toPromise();
+        if (updated && this.profile) {
+          this.profile = { ...this.profile, avatarBase64: updated.avatarBase64 };
+        }
+      } catch {
+        const toast = await this.toastCtrl.create({
+          message: 'Error al subir la imagen',
+          duration: 2500,
+          color: 'danger',
+          position: 'bottom'
+        });
+        await toast.present();
+      } finally {
+        this.isUploadingAvatar = false;
+        input.value = '';
+      }
+    };
+    reader.readAsDataURL(file);
   }
 
   async onSettingTap(action: string) {

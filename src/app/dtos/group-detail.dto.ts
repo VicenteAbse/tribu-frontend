@@ -7,7 +7,7 @@ export interface GroupMemberDto {
   id: number;
   name: string;
   initials: string;
-  role: 'admin' | 'member';
+  role: 'owner' | 'admin' | 'member';
   isMuted?: boolean;
 }
 

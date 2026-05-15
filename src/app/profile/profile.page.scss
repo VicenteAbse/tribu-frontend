@@ -54,6 +54,10 @@
   border: 3px solid var(--c-border-strong);
 }
 
+.avatar-img {
+  object-fit: cover;
+}
+
 .camera-btn {
   position: absolute;
   bottom: 2px;

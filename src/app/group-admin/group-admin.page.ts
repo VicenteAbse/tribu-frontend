@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { ActionSheetController, AlertController, NavController } from '@ionic/angular';
+import { ActionSheetController, AlertController, NavController, ToastController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
 import { GroupEvent, GroupMember, JoinRequest } from '../dtos/api.dto';
 import { GroupEventDto } from '../dtos/group-event.dto';
@@ -16,13 +16,15 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 interface AdminGroupData {
+  uuid: string;
   id: number;
   name: string;
   backgroundColor: string;
-  viewerRole: 'creator' | 'admin';
+  myRole: 'owner' | 'admin';
   joinPolicy: 'open' | 'approval';
   description: string;
   category: string;
+  coverImageBase64: string | null;
 }
 
 @Component({
@@ -32,6 +34,8 @@ interface AdminGroupData {
   standalone: false
 })
 export class GroupAdminPage implements OnInit {
+  @ViewChild('coverInput') coverInput!: ElementRef<HTMLInputElement>;
+
   group: AdminGroupData | null = null;
   activeSegment = 'members';
 
@@ -42,6 +46,8 @@ export class GroupAdminPage implements OnInit {
   showEventForm = false;
   eventForm: FormGroup;
   editForm: FormGroup;
+
+  isUploadingCover = false;
   editImageSlots: (string | null)[] = [null, null, null];
 
   readonly categories = ['Deportes', 'Arte', 'Cultura', 'Tecnología', 'Música', 'Gastronomía'];
@@ -62,11 +68,14 @@ export class GroupAdminPage implements OnInit {
   get upcomingEvents(): GroupEventDto[] { return this.events.filter(e => !e.isPast); }
   get pastEvents():     GroupEventDto[] { return this.events.filter(e =>  e.isPast); }
 
+  get isOwner(): boolean { return this.group?.myRole === 'owner'; }
+
   constructor(
     private route: ActivatedRoute,
     private navCtrl: NavController,
     private actionSheetCtrl: ActionSheetController,
     private alertCtrl: AlertController,
+    private toastCtrl: ToastController,
     private fb: FormBuilder,
     private api: ApiService
   ) {
@@ -86,23 +95,29 @@ export class GroupAdminPage implements OnInit {
   }
 
   ngOnInit() {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const uuid = this.route.snapshot.paramMap.get('id')!;
 
     Promise.all([
-      this.api.getGroup(id).toPromise(),
-      this.api.getGroupEvents(id).toPromise().catch(() => [] as GroupEvent[]),
-      this.api.getJoinRequests(id).toPromise().catch(() => [] as JoinRequest[])
-    ]).then(([detail, events, requests]) => {
-      if (!detail) { this.navCtrl.back(); return; }
+      this.api.getGroup(uuid).toPromise(),
+      this.api.getMyProfile().toPromise(),
+      this.api.getGroupEvents(uuid).toPromise().catch(() => [] as GroupEvent[]),
+      this.api.getJoinRequests(uuid).toPromise().catch(() => [] as JoinRequest[])
+    ]).then(([detail, profile, events, requests]) => {
+      if (!detail || !profile) { this.navCtrl.back(); return; }
+
+      const myMembership = detail.members.find(m => m.email === profile.email);
+      const myRole: 'owner' | 'admin' = myMembership?.role === 'OWNER' ? 'owner' : 'admin';
 
       this.group = {
+        uuid: detail.uuid,
         id: detail.id,
         name: detail.name,
         backgroundColor: GROUP_COLORS[detail.id % GROUP_COLORS.length],
-        viewerRole: 'admin',
+        myRole,
         joinPolicy: detail.joinPolicy === 'OPEN' ? 'open' : 'approval',
         description: detail.description,
-        category: CATEGORY_LABELS[detail.category ?? ''] ?? (detail.category ?? '')
+        category: CATEGORY_LABELS[detail.category ?? ''] ?? (detail.category ?? ''),
+        coverImageBase64: detail.coverImageBase64 ?? null
       };
 
       this.members = detail.members.map(m => this.toMemberDisplay(m));
@@ -116,7 +131,7 @@ export class GroupAdminPage implements OnInit {
         joinPolicy: detail.joinPolicy === 'OPEN' ? 'open' : 'approval'
       });
 
-      this.editImageSlots = [GROUP_COLORS[detail.id % GROUP_COLORS.length], null, null];
+      this.editImageSlots = [detail.coverImageBase64 ?? null, null, null];
     }).catch(() => this.navCtrl.back());
   }
 
@@ -125,7 +140,9 @@ export class GroupAdminPage implements OnInit {
     const initials = parts.length >= 2
       ? (parts[0][0] + parts[1][0]).toUpperCase()
       : m.name.substring(0, 2).toUpperCase();
-    return { id: m.id, name: m.name, initials, role: m.role === 'ADMIN' ? 'admin' : 'member', isMuted: m.muted };
+    const role: 'owner' | 'admin' | 'member' =
+      m.role === 'OWNER' ? 'owner' : m.role === 'ADMIN' ? 'admin' : 'member';
+    return { id: m.id, name: m.name, initials, role, isMuted: m.muted };
   }
 
   private toEventDisplay(e: GroupEvent): GroupEventDto {
@@ -158,6 +175,12 @@ export class GroupAdminPage implements OnInit {
     };
   }
 
+  canActOn(member: GroupMemberDto): boolean {
+    if (member.role === 'owner') return false;
+    if (this.isOwner) return true;
+    return member.role === 'member';
+  }
+
   goBack() { this.navCtrl.back(); }
 
   onSegmentChange(ev: CustomEvent) {
@@ -167,10 +190,10 @@ export class GroupAdminPage implements OnInit {
 
   // ── Solicitudes ───────────────────────────────
   approveRequest(req: JoinRequestDto) {
-    this.api.approveJoinRequest(this.group!.id, req.id).subscribe({
+    this.api.approveJoinRequest(this.group!.uuid, req.id).subscribe({
       next: () => {
         this.pendingRequests = this.pendingRequests.filter(r => r.id !== req.id);
-        this.api.getMembers(this.group!.id).subscribe(members => {
+        this.api.getMembers(this.group!.uuid).subscribe(members => {
           this.members = members.map(m => this.toMemberDisplay(m));
         });
       }
@@ -178,7 +201,7 @@ export class GroupAdminPage implements OnInit {
   }
 
   rejectRequest(req: JoinRequestDto) {
-    this.api.rejectJoinRequest(this.group!.id, req.id).subscribe({
+    this.api.rejectJoinRequest(this.group!.uuid, req.id).subscribe({
       next: () => {
         this.pendingRequests = this.pendingRequests.filter(r => r.id !== req.id);
       }
@@ -187,36 +210,55 @@ export class GroupAdminPage implements OnInit {
 
   // ── Miembros ──────────────────────────────────
   async openMemberActions(member: GroupMemberDto) {
-    const sheet = await this.actionSheetCtrl.create({
-      header: member.name,
-      cssClass: 'admin-action-sheet',
-      buttons: [
-        {
+    const buttons: any[] = [];
+
+    if (this.isOwner) {
+      if (member.role === 'member') {
+        buttons.push({
           text: 'Asignar como admin',
           icon: 'shield-outline',
           handler: () => {
-            this.api.promoteMember(this.group!.id, member.id).subscribe({
+            this.api.promoteMember(this.group!.uuid, member.id).subscribe({
               next: () => { member.role = 'admin'; }
             });
           }
-        },
-        {
-          text: member.isMuted ? 'Desactivar silencio' : 'Silenciar',
-          icon: member.isMuted ? 'volume-high-outline' : 'volume-mute-outline',
+        });
+      } else if (member.role === 'admin') {
+        buttons.push({
+          text: 'Quitar admin',
+          icon: 'shield-off-outline',
           handler: () => {
-            this.api.muteMember(this.group!.id, member.id).subscribe({
-              next: (updated) => { member.isMuted = updated.muted; }
+            this.api.demoteMember(this.group!.uuid, member.id).subscribe({
+              next: () => { member.role = 'member'; }
             });
           }
-        },
-        {
-          text: 'Expulsar del grupo',
-          icon: 'person-remove-outline',
-          role: 'destructive',
-          handler: () => this.confirmKick(member)
-        },
-        { text: 'Cancelar', icon: 'close-outline', role: 'cancel' }
-      ]
+        });
+      }
+    }
+
+    buttons.push({
+      text: member.isMuted ? 'Desactivar silencio' : 'Silenciar',
+      icon: member.isMuted ? 'volume-high-outline' : 'volume-mute-outline',
+      handler: () => {
+        this.api.muteMember(this.group!.uuid, member.id).subscribe({
+          next: (updated) => { member.isMuted = updated.muted; }
+        });
+      }
+    });
+
+    buttons.push({
+      text: 'Expulsar del grupo',
+      icon: 'person-remove-outline',
+      role: 'destructive',
+      handler: () => this.confirmKick(member)
+    });
+
+    buttons.push({ text: 'Cancelar', icon: 'close-outline', role: 'cancel' });
+
+    const sheet = await this.actionSheetCtrl.create({
+      header: member.name,
+      cssClass: 'admin-action-sheet',
+      buttons
     });
     await sheet.present();
   }
@@ -232,7 +274,7 @@ export class GroupAdminPage implements OnInit {
           text: 'Expulsar',
           role: 'destructive',
           handler: () => {
-            this.api.removeMember(this.group!.id, member.id).subscribe({
+            this.api.removeMember(this.group!.uuid, member.id).subscribe({
               next: () => { this.members = this.members.filter(m => m.id !== member.id); }
             });
           }
@@ -250,7 +292,7 @@ export class GroupAdminPage implements OnInit {
     const { title, description, eventDate, location } = this.eventForm.value;
     const eventDateStr = (eventDate as string).length === 16 ? eventDate + ':00' : eventDate;
 
-    this.api.createGroupEvent(this.group!.id, { title, description, eventDate: eventDateStr, location }).subscribe({
+    this.api.createGroupEvent(this.group!.uuid, { title, description, eventDate: eventDateStr, location }).subscribe({
       next: (event) => {
         this.events = [this.toEventDisplay(event), ...this.events];
         this.eventForm.reset();
@@ -259,21 +301,45 @@ export class GroupAdminPage implements OnInit {
     });
   }
 
+  // ── Imagen de portada ─────────────────────────
+  onCoverSlotClick() {
+    this.coverInput.nativeElement.click();
+  }
+
+  onCoverFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64 = (reader.result as string).split(',')[1];
+      this.isUploadingCover = true;
+      try {
+        const updated = await this.api.updateGroupCover(this.group!.uuid, { imageBase64: base64 }).toPromise();
+        if (updated) {
+          this.group!.coverImageBase64 = updated.coverImageBase64 ?? null;
+          this.editImageSlots[0] = updated.coverImageBase64 ?? null;
+        }
+      } catch {
+        const toast = await this.toastCtrl.create({
+          message: 'Error al subir la imagen',
+          duration: 2500,
+          color: 'danger',
+          position: 'bottom'
+        });
+        await toast.present();
+      } finally {
+        this.isUploadingCover = false;
+        input.value = '';
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
   // ── Editar grupo ──────────────────────────────
-  get editFilledSlots(): number { return this.editImageSlots.filter(Boolean).length; }
   get editNameLen(): number { return (this.editForm.get('name')!.value as string).length; }
   get editDescLen(): number { return (this.editForm.get('description')!.value as string).length; }
-
-  cycleEditSlotColor(index: number) {
-    const current = this.editImageSlots[index];
-    const idx = current ? GROUP_COLORS.indexOf(current) : -1;
-    this.editImageSlots[index] = GROUP_COLORS[(idx + 1) % GROUP_COLORS.length];
-  }
-
-  clearEditSlot(index: number, event: Event) {
-    event.stopPropagation();
-    this.editImageSlots[index] = null;
-  }
 
   selectCategory(cat: string) { this.editForm.get('category')!.setValue(cat); }
   setJoinPolicy(p: string)    { this.editForm.get('joinPolicy')!.setValue(p); }
@@ -283,7 +349,7 @@ export class GroupAdminPage implements OnInit {
     if (this.editForm.invalid) return;
 
     const { name, description, joinPolicy } = this.editForm.value;
-    this.api.updateGroup(this.group!.id, {
+    this.api.updateGroup(this.group!.uuid, {
       name,
       description,
       joinPolicy: joinPolicy === 'open' ? 'OPEN' : 'APPROVAL_REQUIRED'

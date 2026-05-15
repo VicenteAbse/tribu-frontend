@@ -1,39 +1,70 @@
-@if (group) {
+<ion-header class="chat-header">
+  <ion-toolbar>
 
-  <ion-header class="chat-header">
-    <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button class="nav-btn" (click)="goBack()">
+        <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
 
-      <ion-buttons slot="start">
-        <ion-button class="nav-btn" (click)="goBack()">
-          <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-
-      <!-- Nombre del grupo clickeable → detalle -->
-      <div class="header-group" (click)="goToGroupDetail()">
-        <div class="header-avatar" [style.background-color]="group.backgroundColor">
-          {{ group.name[0] }}
+    @if (isLoading) {
+      <div class="header-group header-skeleton">
+        <div class="header-avatar skeleton-circle"></div>
+        <div class="header-info">
+          <ion-skeleton-text animated style="width: 120px; height: 14px; border-radius: 6px;"></ion-skeleton-text>
+          <ion-skeleton-text animated style="width: 80px; height: 11px; border-radius: 6px; margin-top: 4px;"></ion-skeleton-text>
         </div>
+      </div>
+    } @else if (group) {
+      <div class="header-group" (click)="goToGroupDetail()">
+        @if (group.coverImageBase64) {
+          <img
+            class="header-avatar header-avatar-img"
+            [src]="'data:image/jpeg;base64,' + group.coverImageBase64"
+            [alt]="group.name" />
+        } @else {
+          <div class="header-avatar" [style.background-color]="group.backgroundColor">
+            {{ group.name[0] }}
+          </div>
+        }
         <div class="header-info">
           <span class="header-name">{{ group.name }}</span>
           <span class="header-sub">{{ group.memberCount }} miembros · toca para ver detalles</span>
         </div>
         <ion-icon name="chevron-forward-outline" class="header-chevron"></ion-icon>
       </div>
+    }
 
-      <ion-buttons slot="end">
-        <ion-button class="nav-btn">
-          <ion-icon name="ellipsis-vertical-outline" slot="icon-only"></ion-icon>
-        </ion-button>
-      </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button class="nav-btn">
+        <ion-icon name="ellipsis-vertical-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
 
-    </ion-toolbar>
-  </ion-header>
+  </ion-toolbar>
+</ion-header>
 
-  <ion-content class="chat-content" [fullscreen]="false">
+<ion-content class="chat-content" [fullscreen]="false">
+
+  @if (isLoading) {
+    <div class="messages-container skeleton-messages">
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="msg-row" [class.own-row]="i % 2 === 0">
+          @if (i % 2 !== 0) {
+            <div class="msg-avatar skeleton-circle"></div>
+          }
+          <div class="bubble-col" [class.own-col]="i % 2 === 0">
+            <ion-skeleton-text animated
+              [style.width]="(50 + i * 15) + 'px'"
+              style="height: 38px; border-radius: 18px;">
+            </ion-skeleton-text>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (group) {
     <div class="messages-container">
 
-      <!-- Banner anclado (evento más reciente) -->
       @if (pinnedEvent) {
         <div class="pinned-banner" [style.border-left-color]="group.backgroundColor">
           <ion-icon name="calendar-outline" class="pinned-icon" [style.color]="group.backgroundColor"></ion-icon>
@@ -80,9 +111,17 @@
       }
 
     </div>
-  </ion-content>
+  } @else {
+    <div class="not-found">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <p>{{ errorMsg || 'Grupo no encontrado' }}</p>
+      <ion-button fill="clear" (click)="goBack()">Volver</ion-button>
+    </div>
+  }
 
-  <!-- Barra de entrada -->
+</ion-content>
+
+@if (!isLoading && group) {
   <ion-footer class="chat-footer">
     <div class="input-bar">
       <div class="input-wrapper">
@@ -103,13 +142,4 @@
       </ion-button>
     </div>
   </ion-footer>
-
-} @else {
-  <ion-content>
-    <div class="not-found">
-      <ion-icon name="alert-circle-outline"></ion-icon>
-      <p>Grupo no encontrado</p>
-      <ion-button fill="clear" (click)="goBack()">Volver</ion-button>
-    </div>
-  </ion-content>
 }

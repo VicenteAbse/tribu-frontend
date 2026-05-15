@@ -4,7 +4,7 @@ export type Gender = 'MALE' | 'FEMALE' | 'OTHER';
 export type GenderPreference = 'MIXED' | 'MEN_ONLY' | 'WOMEN_ONLY';
 export type GroupCategory = 'DEPORTES' | 'ARTE' | 'CULTURA' | 'TECNOLOGIA' | 'MUSICA' | 'GASTRONOMIA';
 export type GroupStatus = 'OPEN' | 'ACTIVE' | 'CLOSED';
-export type GroupMemberRole = 'MEMBER' | 'ADMIN';
+export type GroupMemberRole = 'MEMBER' | 'ADMIN' | 'OWNER';
 export type JoinPolicy = 'OPEN' | 'APPROVAL_REQUIRED';
 export type JoinRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
@@ -43,6 +43,7 @@ export interface UserProfile {
   birthDate: string;
   searchRadiusKm: number;
   dailyLikesLeft: number;
+  avatarBase64?: string | null;
 }
 
 export interface UpdateProfileRequest {
@@ -51,18 +52,25 @@ export interface UpdateProfileRequest {
   searchRadiusKm: number;
 }
 
+export interface UpdateAvatarRequest {
+  imageBase64: string;
+}
+
 // --- Groups ---
 
 export interface GroupSummary {
+  uuid: string;
   id: number;
   name: string;
   description: string;
   status: GroupStatus;
   role: GroupMemberRole;
   joinedAt: string;
+  coverImageBase64?: string | null;
 }
 
 export interface GroupDiscovery {
+  uuid: string;
   id: number;
   name: string;
   description: string;
@@ -75,6 +83,7 @@ export interface GroupDiscovery {
   status: GroupStatus;
   createdAt: string;
   distanceKm: number | null;
+  coverImageBase64?: string | null;
 }
 
 export interface GroupMember {
@@ -108,6 +117,10 @@ export interface UpdateGroupRequest {
   name: string;
   description: string;
   joinPolicy?: JoinPolicy;
+}
+
+export interface UpdateCoverImageRequest {
+  imageBase64: string;
 }
 
 // --- Swipe ---

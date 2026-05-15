@@ -23,6 +23,8 @@ import {
   SendMessageRequest,
   SwipeRequest,
   SwipeResult,
+  UpdateAvatarRequest,
+  UpdateCoverImageRequest,
   UpdateGroupRequest,
   UpdateProfileRequest,
   UserProfile,
@@ -58,6 +60,10 @@ export class ApiService {
     return this.http.put<UserProfile>(`${this.base}/users/me`, body);
   }
 
+  updateAvatar(body: UpdateAvatarRequest): Observable<UserProfile> {
+    return this.http.put<UserProfile>(`${this.base}/users/me/avatar`, body);
+  }
+
   getMyGroups(): Observable<GroupSummary[]> {
     return this.http.get<GroupSummary[]>(`${this.base}/users/me/groups`);
   }
@@ -86,8 +92,8 @@ export class ApiService {
     return this.http.get<Page<GroupDiscovery>>(`${this.base}/groups/discover`, { params });
   }
 
-  swipeGroup(groupId: number, body: SwipeRequest): Observable<SwipeResult> {
-    return this.http.post<SwipeResult>(`${this.base}/groups/${groupId}/swipe`, body);
+  swipeGroup(groupUuid: string, body: SwipeRequest): Observable<SwipeResult> {
+    return this.http.post<SwipeResult>(`${this.base}/groups/${groupUuid}/swipe`, body);
   }
 
   // --- Groups ---
@@ -96,65 +102,73 @@ export class ApiService {
     return this.http.post<GroupDetail>(`${this.base}/groups`, body);
   }
 
-  getGroup(groupId: number): Observable<GroupDetail> {
-    return this.http.get<GroupDetail>(`${this.base}/groups/${groupId}`);
+  getGroup(groupUuid: string): Observable<GroupDetail> {
+    return this.http.get<GroupDetail>(`${this.base}/groups/${groupUuid}`);
   }
 
-  updateGroup(groupId: number, body: UpdateGroupRequest): Observable<GroupDetail> {
-    return this.http.put<GroupDetail>(`${this.base}/groups/${groupId}`, body);
+  updateGroup(groupUuid: string, body: UpdateGroupRequest): Observable<GroupDetail> {
+    return this.http.put<GroupDetail>(`${this.base}/groups/${groupUuid}`, body);
+  }
+
+  updateGroupCover(groupUuid: string, body: UpdateCoverImageRequest): Observable<GroupDetail> {
+    return this.http.put<GroupDetail>(`${this.base}/groups/${groupUuid}/cover`, body);
   }
 
   // --- Members ---
 
-  getMembers(groupId: number): Observable<GroupMember[]> {
-    return this.http.get<GroupMember[]>(`${this.base}/groups/${groupId}/members`);
+  getMembers(groupUuid: string): Observable<GroupMember[]> {
+    return this.http.get<GroupMember[]>(`${this.base}/groups/${groupUuid}/members`);
   }
 
-  removeMember(groupId: number, memberId: number): Observable<void> {
-    return this.http.delete<void>(`${this.base}/groups/${groupId}/members/${memberId}`);
+  removeMember(groupUuid: string, memberId: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/groups/${groupUuid}/members/${memberId}`);
   }
 
-  promoteMember(groupId: number, memberId: number): Observable<GroupMember> {
-    return this.http.post<GroupMember>(`${this.base}/groups/${groupId}/members/${memberId}/promote`, {});
+  promoteMember(groupUuid: string, memberId: number): Observable<GroupMember> {
+    return this.http.post<GroupMember>(`${this.base}/groups/${groupUuid}/members/${memberId}/promote`, {});
   }
 
-  muteMember(groupId: number, memberId: number): Observable<GroupMember> {
-    return this.http.post<GroupMember>(`${this.base}/groups/${groupId}/members/${memberId}/mute`, {});
+  demoteMember(groupUuid: string, memberId: number): Observable<GroupMember> {
+    return this.http.post<GroupMember>(`${this.base}/groups/${groupUuid}/members/${memberId}/demote`, {});
+  }
+
+  muteMember(groupUuid: string, memberId: number): Observable<GroupMember> {
+    return this.http.post<GroupMember>(`${this.base}/groups/${groupUuid}/members/${memberId}/mute`, {});
   }
 
   // --- Join Requests ---
 
-  getJoinRequests(groupId: number): Observable<JoinRequest[]> {
-    return this.http.get<JoinRequest[]>(`${this.base}/groups/${groupId}/join-requests`);
+  getJoinRequests(groupUuid: string): Observable<JoinRequest[]> {
+    return this.http.get<JoinRequest[]>(`${this.base}/groups/${groupUuid}/join-requests`);
   }
 
-  approveJoinRequest(groupId: number, requestId: number): Observable<JoinRequest> {
-    return this.http.post<JoinRequest>(`${this.base}/groups/${groupId}/join-requests/${requestId}/approve`, {});
+  approveJoinRequest(groupUuid: string, requestId: number): Observable<JoinRequest> {
+    return this.http.post<JoinRequest>(`${this.base}/groups/${groupUuid}/join-requests/${requestId}/approve`, {});
   }
 
-  rejectJoinRequest(groupId: number, requestId: number): Observable<JoinRequest> {
-    return this.http.post<JoinRequest>(`${this.base}/groups/${groupId}/join-requests/${requestId}/reject`, {});
+  rejectJoinRequest(groupUuid: string, requestId: number): Observable<JoinRequest> {
+    return this.http.post<JoinRequest>(`${this.base}/groups/${groupUuid}/join-requests/${requestId}/reject`, {});
   }
 
   // --- Events ---
 
-  getGroupEvents(groupId: number): Observable<GroupEvent[]> {
-    return this.http.get<GroupEvent[]>(`${this.base}/groups/${groupId}/events`);
+  getGroupEvents(groupUuid: string): Observable<GroupEvent[]> {
+    return this.http.get<GroupEvent[]>(`${this.base}/groups/${groupUuid}/events`);
   }
 
-  createGroupEvent(groupId: number, body: CreateGroupEventRequest): Observable<GroupEvent> {
-    return this.http.post<GroupEvent>(`${this.base}/groups/${groupId}/events`, body);
+  createGroupEvent(groupUuid: string, body: CreateGroupEventRequest): Observable<GroupEvent> {
+    return this.http.post<GroupEvent>(`${this.base}/groups/${groupUuid}/events`, body);
   }
 
   // --- Messages ---
 
-  getMessages(groupId: number, page = 0, size = 50): Observable<Page<Message>> {
+  getMessages(groupUuid: string, page = 0, size = 50): Observable<Page<Message>> {
     const params = new HttpParams().set('page', page).set('size', size);
-    return this.http.get<Page<Message>>(`${this.base}/groups/${groupId}/messages`, { params });
+    return this.http.get<Page<Message>>(`${this.base}/groups/${groupUuid}/messages`, { params });
   }
 
-  sendMessage(groupId: number, body: SendMessageRequest): Observable<Message> {
-    return this.http.post<Message>(`${this.base}/groups/${groupId}/messages`, body);
+  sendMessage(groupUuid: string, body: SendMessageRequest): Observable<Message> {
+    return this.http.post<Message>(`${this.base}/groups/${groupUuid}/messages`, body);
   }
 
   // --- Notifications ---

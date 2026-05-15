@@ -4,6 +4,10 @@
     <!-- Hero -->
     <div class="hero" [style.background-color]="group.backgroundColor">
 
+      @if (group.coverImageBase64) {
+        <img class="hero-cover-img" [src]="'data:image/jpeg;base64,' + group.coverImageBase64" alt="Portada" />
+      }
+
       <div class="hero-decoration">
         <ion-icon [name]="'people-circle-outline'"></ion-icon>
       </div>
