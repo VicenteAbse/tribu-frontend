@@ -180,6 +180,15 @@ export interface SendMessageRequest {
   content: string;
 }
 
+// --- Chat WebSocket ---
+
+export interface ChatNotification {
+  groupUuid: string;
+  groupName: string;
+  senderName: string;
+  preview: string;
+}
+
 // --- Notifications ---
 
 export interface Notification {

@@ -1,8 +1,9 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent, NavController } from '@ionic/angular';
 import { ChatMessageDto } from '../dtos/chat-message.dto';
 import { ApiService } from '../services/api.service';
+import { ChatWebSocketService } from '../services/chat-websocket.service';
 import { Message } from '../dtos/api.dto';
 
 const GROUP_COLORS = ['#4ECDC4', '#FF6584', '#6C63FF', '#F7B731', '#A55EEA', '#FC5C65', '#26de81', '#45AAB8', '#f7797d'];
@@ -22,7 +23,7 @@ interface GroupInfo {
   styleUrls: ['./group-chat.page.scss'],
   standalone: false
 })
-export class GroupChatPage implements OnInit, AfterViewInit {
+export class GroupChatPage implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(IonContent) content!: IonContent;
 
   groupUuid!: string;
@@ -39,7 +40,8 @@ export class GroupChatPage implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private router: Router,
     private navCtrl: NavController,
-    private api: ApiService
+    private api: ApiService,
+    private ws: ChatWebSocketService
   ) {}
 
   ngOnInit() {
@@ -51,13 +53,19 @@ export class GroupChatPage implements OnInit, AfterViewInit {
     this.scrollToBottom();
   }
 
-  private loadData() {
+  ngOnDestroy() {
+    this.ws.unsubscribeFromGroup();
+  }
+
+  private async loadData() {
     this.isLoading = true;
-    Promise.all([
-      this.api.getMyProfile().toPromise(),
-      this.api.getGroup(this.groupUuid).toPromise(),
-      this.api.getMessages(this.groupUuid, 0, 50).toPromise()
-    ]).then(([profile, groupDetail, page]) => {
+    try {
+      const [profile, groupDetail, page] = await Promise.all([
+        this.api.getMyProfile().toPromise(),
+        this.api.getGroup(this.groupUuid).toPromise(),
+        this.api.getMessages(this.groupUuid, 0, 50).toPromise()
+      ]);
+
       this.currentUserName = profile!.name;
       this.group = {
         id: groupDetail!.id,
@@ -70,10 +78,23 @@ export class GroupChatPage implements OnInit, AfterViewInit {
       this.messages = page!.content.map(m => this.toDto(m));
       this.isLoading = false;
       this.scrollToBottom();
-    }).catch((e) => {
+
+      // conectar WebSocket y suscribirse al topic del grupo
+      await this.ws.connect();
+      this.ws.subscribeToGroup(this.groupUuid, (msg) => this.onNewMessage(msg));
+    } catch (e: any) {
       this.errorMsg = e?.error?.message ?? 'No se pudo cargar el chat';
       this.isLoading = false;
-    });
+    }
+  }
+
+  private onNewMessage(msg: Message) {
+    const dto = this.toDto(msg);
+    // evitar duplicados si el mismo mensaje ya está en la lista
+    if (!this.messages.some(m => m.id === dto.id)) {
+      this.messages.push(dto);
+      this.scrollToBottom();
+    }
   }
 
   private toDto(m: Message): ChatMessageDto {
@@ -113,15 +134,8 @@ export class GroupChatPage implements OnInit, AfterViewInit {
     if (!text) return;
 
     this.newMessage = '';
-    this.api.sendMessage(this.groupUuid, { content: text }).subscribe({
-      next: (msg) => {
-        this.messages.push(this.toDto(msg));
-        this.scrollToBottom();
-      },
-      error: () => {
-        this.newMessage = text;
-      }
-    });
+    // envía vía WebSocket; el mensaje vuelve por la suscripción al topic del grupo
+    this.ws.sendMessage(this.groupUuid, text);
   }
 
   private scrollToBottom() {

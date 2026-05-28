@@ -255,6 +255,13 @@
   font-weight: 600;
 }
 
+// ── Item right (badge o tiempo) ───────────────
+.item-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 // ── Unread badge ──────────────────────────────
 .unread-badge {
   flex-shrink: 0;

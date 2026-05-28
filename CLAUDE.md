@@ -8,6 +8,7 @@ App social móvil para encontrar y unirse a grupos con intereses en común. Nomb
 - **Formularios:** Reactive Forms (`ReactiveFormsModule`)
 - **Navegación:** Angular Router con lazy loading por módulo
 - **Plataforma nativa:** Capacitor 8
+- **WebSocket:** `@stomp/stompjs` v7 — chat en tiempo real con STOMP
 
 ## Comandos
 
@@ -27,8 +28,8 @@ Siempre NgModule. Los componentes **nunca** tienen `standalone: true`. Cada pág
 
 - Ubicación: `/Users/vicenteabsehidalgo/Documents/Proyectos personales/tribu-backend`
 - URL local: `http://localhost:8080`
-- Configuración en `src/environments/environment.ts` → `apiUrl`
-- Todos los calls pasan por `src/app/services/api.service.ts`
+- Configuración en `src/environments/environment.ts` → `apiUrl` (REST) y `wsUrl` (WebSocket)
+- Todos los calls HTTP pasan por `src/app/services/api.service.ts`
 - DTOs centralizados en `src/app/dtos/api.dto.ts`
 
 ## Autenticación
@@ -65,8 +66,8 @@ Siempre NgModule. Los componentes **nunca** tienen `standalone: true`. Cada pág
 | LoginPage | Conectada | JWT guardado en AuthService |
 | RegisterPage | Conectada | Incluye género y fecha de nacimiento |
 | DiscoveryPage | Conectada | Swipe gestual (GestureController); filtra por ubicación y categoría |
-| MyGroupsPage | Conectada | Usa `getMyGroups()`; muestra imagen de portada si existe |
-| GroupChatPage | Conectada | Skeleton durante carga; imagen en header; `sendMessage()` real |
+| MyGroupsPage | Conectada | Usa `getMyGroups()`; muestra imagen de portada; badge de mensajes no leídos vía WS |
+| GroupChatPage | Conectada | Skeleton durante carga; imagen en header; mensajes en tiempo real vía WS |
 | GroupDetailPage | Conectada | Hero con imagen de portada; botón admin para OWNER/ADMIN |
 | GroupAdminPage | Conectada | Carga perfil propio para determinar myRole (OWNER vs ADMIN) |
 | ProfilePage | Conectada | Upload de avatar con file picker → base64 |
@@ -110,6 +111,33 @@ reader.readAsDataURL(file);
 Imágenes en uso:
 - `UserProfile.avatarBase64` → avatar circular en ProfilePage
 - `GroupDetail.coverImageBase64` / `GroupDiscovery.coverImageBase64` / `GroupSummary.coverImageBase64` → portada del grupo en chat header, my-groups, group-detail hero
+
+## Chat en tiempo real (WebSocket + STOMP)
+
+**Servicio:** `src/app/services/chat-websocket.service.ts` — singleton (`providedIn: 'root'`). Gestiona una única conexión STOMP compartida por toda la app.
+
+**API del servicio:**
+```typescript
+ws.connect()                                    // conecta con el JWT actual; idempotente
+ws.subscribeToGroup(groupUuid, onMessage)       // /topic/group/{uuid} → mensajes del chat
+ws.subscribeToNotifications(userUuid, onNotif)  // /topic/user/{uuid}/notifications → badges
+ws.sendMessage(groupUuid, content)              // publica en /app/group/{uuid}/message
+ws.unsubscribeFromGroup()                       // al salir del chat
+```
+
+**Patrón en `GroupChatPage`:**
+- `ngOnInit`: carga mensajes vía REST, luego `ws.connect()` + `ws.subscribeToGroup()`
+- `ngOnDestroy`: `ws.unsubscribeFromGroup()`
+- `sendMessage()`: usa `ws.sendMessage()` — el mensaje llega de vuelta por la suscripción (no se pushea manualmente). Deduplicación por `id` para evitar duplicados.
+
+**Patrón en `MyGroupsPage`:**
+- `ngOnInit`: `ws.connect()` + `ws.subscribeToNotifications(profile.uuid, ...)`. Recibe `ChatNotification` → incrementa `unreadCount` y mueve el grupo al tope.
+- `ionViewWillEnter`: recarga la lista de grupos (para refrescar al volver del chat).
+- `openGroup()`: resetea `unreadCount = 0` del grupo antes de navegar.
+
+**`ChatNotification` (api.dto.ts):** `{ groupUuid, groupName, senderName, preview }`
+
+**Conexión:** el JWT se pasa como header `Authorization` en el frame STOMP `CONNECT`. Se conecta una vez y se mantiene. Si falla, la app sigue en modo REST (el error de WS es silencioso).
 
 ## Skeleton loading
 

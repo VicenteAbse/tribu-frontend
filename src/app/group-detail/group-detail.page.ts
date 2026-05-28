@@ -92,6 +92,7 @@ export class GroupDetailPage implements OnInit {
         members: detail!.members.map(m => this.toMemberDisplay(m)),
         events: (events as GroupEvent[] ?? []).map(e => this.toEventDisplay(e))
       };
+      console.log(this.group);
     }).catch(() => {
       this.group = null;
     });

@@ -95,7 +95,13 @@
     <div class="item-body" [class.no-border]="last">
       <div class="item-top">
         <span class="group-name">{{ group.name }}</span>
-        <span class="msg-time">{{ group.statusLabel }}</span>
+        <div class="item-right">
+          @if (group.unreadCount > 0) {
+            <span class="unread-badge">{{ group.unreadCount > 99 ? '99+' : group.unreadCount }}</span>
+          } @else {
+            <span class="msg-time">{{ group.statusLabel }}</span>
+          }
+        </div>
       </div>
       <div class="item-bottom">
         <p class="last-message msg-muted">{{ group.description }}</p>
