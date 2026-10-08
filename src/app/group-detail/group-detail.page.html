@@ -1,4 +1,25 @@
-@if (group) {
+@if (isLoading) {
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button (click)="goBack()">
+          <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content>
+    <ion-skeleton-text animated style="width: 100%; height: 240px;"></ion-skeleton-text>
+    <div style="padding: 16px;">
+      <ion-skeleton-text animated style="width: 50%; height: 22px; margin-bottom: 8px;"></ion-skeleton-text>
+      <ion-skeleton-text animated style="width: 80%; height: 14px; margin-bottom: 4px;"></ion-skeleton-text>
+      <ion-skeleton-text animated style="width: 60%; height: 14px; margin-bottom: 24px;"></ion-skeleton-text>
+      @for (i of [1,2,3]; track i) {
+        <ion-skeleton-text animated style="width: 100%; height: 48px; margin-bottom: 8px; border-radius: 8px;"></ion-skeleton-text>
+      }
+    </div>
+  </ion-content>
+} @else if (group) {
   <ion-content class="detail-content" [fullscreen]="true">
 
     <!-- Hero -->
@@ -47,6 +68,26 @@
 
     <!-- Body -->
     <div class="body-content">
+
+      <!-- Progreso de miembros (solo para grupos en espera) -->
+      @if (group.status !== 'ACTIVE') {
+        <section class="section waiting-section">
+          <div class="waiting-header">
+            <ion-icon name="time-outline" class="waiting-icon"></ion-icon>
+            <span class="waiting-title">En espera de integrantes</span>
+          </div>
+          <p class="waiting-subtitle">
+            {{ currentMembers }} de {{ group.minMembers }} integrantes
+            @if (membersNeeded > 0) {
+              · faltan {{ membersNeeded }}
+            }
+          </p>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" [style.width.%]="progressPercent"></div>
+          </div>
+          <p class="waiting-hint">El chat se abre cuando el grupo alcance el mínimo de integrantes.</p>
+        </section>
+      }
 
       <!-- Sobre el grupo -->
       <section class="section">

@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.trivy.app',
-  wsUrl: 'wss://api.trivy.app/ws'
+  apiUrl: 'https://tribu-api.vicenteabse.cl',
+  wsUrl: 'wss://tribu-api.vicenteabse.cl/ws'
 };

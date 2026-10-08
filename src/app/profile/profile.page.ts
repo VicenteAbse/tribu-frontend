@@ -4,6 +4,7 @@ import { ActionSheetController, ToastController, ViewWillEnter } from '@ionic/an
 import { ThemeService } from '../services/theme.service';
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
+import { PushNotificationService } from '../services/push-notification.service';
 import { UserProfile } from '../dtos/api.dto';
 
 const AVATAR_PALETTE = ['#6C63FF', '#FF6584', '#4ECDC4', '#F7B731', '#A55EEA', '#FC5C65', '#26de81', '#fd9644'];
@@ -74,6 +75,7 @@ export class ProfilePage implements ViewWillEnter {
     public themeService: ThemeService,
     private authService: AuthService,
     private apiService: ApiService,
+    private push: PushNotificationService,
   ) {}
 
   ionViewWillEnter() {
@@ -173,6 +175,7 @@ export class ProfilePage implements ViewWillEnter {
   }
 
   async signOut() {
+    await this.push.unregister();
     await this.authService.clearToken();
     this.router.navigate(['/auth/login'], { replaceUrl: true });
   }

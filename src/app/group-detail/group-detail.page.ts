@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
-import { GroupEvent, GroupMember, GroupStatus } from '../dtos/api.dto';
+import { GroupEvent, GroupMember, GroupMemberRole, GroupStatus } from '../dtos/api.dto';
 
 const GROUP_COLORS = ['#4ECDC4', '#FF6584', '#6C63FF', '#F7B731', '#A55EEA', '#FC5C65', '#26de81', '#45AAB8', '#f7797d'];
 
@@ -33,11 +34,13 @@ interface GroupDisplay {
   description: string;
   category: string;
   memberCount: number;
+  minMembers: number;
   distanceKm: number | null;
   backgroundColor: string;
   coverImageBase64: string | null;
   createdBy: string;
   status: GroupStatus;
+  myRole: GroupMemberRole | null;
   members: MemberDisplay[];
   events: EventDisplay[];
 }
@@ -52,12 +55,15 @@ export class GroupDetailPage implements OnInit {
   group: GroupDisplay | null = null;
   isAdmin = false;
   isMember = false;
+  isLoading = true;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private navCtrl: NavController,
-    private api: ApiService
+    private api: ApiService,
+    private alertCtrl: AlertController,
+    private toastCtrl: ToastController,
   ) {}
 
   ngOnInit() {
@@ -84,17 +90,20 @@ export class GroupDetailPage implements OnInit {
         description: detail!.description,
         category: CATEGORY_LABELS[detail!.category ?? ''] ?? (detail!.category ?? ''),
         memberCount: detail!.members.length,
+        minMembers: detail!.minMembers,
         distanceKm: detail!.distanceKm,
         backgroundColor: GROUP_COLORS[detail!.id % GROUP_COLORS.length],
         coverImageBase64: detail!.coverImageBase64 ?? null,
         createdBy: detail!.creatorName,
         status: detail!.status,
+        myRole: myMembership?.role ?? null,
         members: detail!.members.map(m => this.toMemberDisplay(m)),
         events: (events as GroupEvent[] ?? []).map(e => this.toEventDisplay(e))
       };
-      console.log(this.group);
+      this.isLoading = false;
     }).catch(() => {
       this.group = null;
+      this.isLoading = false;
     });
   }
 
@@ -119,6 +128,49 @@ export class GroupDetailPage implements OnInit {
 
   get upcomingEvents(): EventDisplay[] {
     return this.group?.events.filter(e => !e.isPast) ?? [];
+  }
+
+  get currentMembers(): number {
+    if (!this.group) return 0;
+    // likesCount + 1 (el creador) = miembros actuales, pero ya tenemos members[]
+    return this.group.memberCount;
+  }
+
+  get membersNeeded(): number {
+    if (!this.group) return 0;
+    return Math.max(0, this.group.minMembers - this.group.memberCount);
+  }
+
+  get progressPercent(): number {
+    if (!this.group || this.group.minMembers === 0) return 0;
+    return Math.min(100, Math.round((this.group.memberCount / this.group.minMembers) * 100));
+  }
+
+  get isOwner(): boolean { return this.group?.myRole === 'OWNER'; }
+
+  async confirmDelete() {
+    const alert = await this.alertCtrl.create({
+      header: 'Eliminar grupo',
+      message: '¿Estás seguro? Esta acción no se puede deshacer.',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Eliminar',
+          role: 'destructive',
+          handler: () => this.deleteGroup()
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  private async deleteGroup() {
+    const toast = await this.toastCtrl.create({
+      message: 'La eliminación de grupos estará disponible próximamente.',
+      duration: 2500,
+      position: 'bottom'
+    });
+    await toast.present();
   }
 
   goBack()    { this.navCtrl.back(); }

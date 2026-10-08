@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { ChatWebSocketService } from '../services/chat-websocket.service';
-import { ChatNotification, GroupSummary } from '../dtos/api.dto';
+import { ChatNotification, GroupStatus, GroupSummary } from '../dtos/api.dto';
 
 const GROUP_COLORS = ['#4ECDC4', '#FF6584', '#6C63FF', '#F7B731', '#A55EEA', '#FC5C65', '#26de81', '#45AAB8', '#f7797d'];
 
@@ -14,6 +14,7 @@ interface GroupDisplay {
   backgroundColor: string;
   coverImageBase64: string | null;
   role: 'admin' | 'member';
+  status: GroupStatus;
   statusLabel: string;
   unreadCount: number;
 }
@@ -27,6 +28,7 @@ interface GroupDisplay {
 export class MyGroupsPage implements OnInit, OnDestroy {
   searchQuery = '';
   groups: GroupDisplay[] = [];
+  isLoading = true;
 
   constructor(
     private router: Router,
@@ -49,6 +51,7 @@ export class MyGroupsPage implements OnInit, OnDestroy {
   }
 
   private loadGroups() {
+    this.isLoading = true;
     this.api.getMyGroups().subscribe({
       next: (summaries) => {
         // preserva unreadCount de los grupos ya cargados
@@ -57,7 +60,9 @@ export class MyGroupsPage implements OnInit, OnDestroy {
           ...this.toDisplay(g),
           unreadCount: prevCounts.get(g.uuid) ?? 0
         }));
-      }
+        this.isLoading = false;
+      },
+      error: () => { this.isLoading = false; }
     });
   }
 
@@ -93,6 +98,7 @@ export class MyGroupsPage implements OnInit, OnDestroy {
       backgroundColor: GROUP_COLORS[g.id % GROUP_COLORS.length],
       coverImageBase64: g.coverImageBase64 ?? null,
       role: (g.role === 'ADMIN' || g.role === 'OWNER') ? 'admin' : 'member',
+      status: g.status,
       statusLabel: g.status === 'ACTIVE' ? 'Chat activo' : 'En espera de miembros',
       unreadCount: 0
     };
@@ -116,8 +122,12 @@ export class MyGroupsPage implements OnInit, OnDestroy {
   }
 
   openGroup(group: GroupDisplay) {
-    group.unreadCount = 0;
-    this.router.navigate(['/group-chat', group.uuid]);
+    if (group.status === 'ACTIVE') {
+      group.unreadCount = 0;
+      this.router.navigate(['/group-chat', group.uuid]);
+    } else {
+      this.router.navigate(['/group-detail', group.uuid]);
+    }
   }
 
   goToCreateGroup() {

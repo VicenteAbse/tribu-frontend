@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { LoadingController, ToastController } from '@ionic/angular';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { PushNotificationService } from '../../services/push-notification.service';
 
 @Component({
   selector: 'app-login',
@@ -22,6 +23,7 @@ export class LoginPage {
     private authService: AuthService,
     private loadingCtrl: LoadingController,
     private toastCtrl: ToastController,
+    private push: PushNotificationService,
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -49,6 +51,7 @@ export class LoginPage {
       next: async (res) => {
         await this.authService.saveToken(res.token);
         await loading.dismiss();
+        this.push.initialize();
         this.router.navigate(['/tabs/discovery'], { replaceUrl: true });
       },
       error: async (err) => {

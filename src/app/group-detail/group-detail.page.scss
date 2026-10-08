@@ -326,6 +326,77 @@
   font-weight: 700;
 }
 
+// ── Waiting section ───────────────────────────
+.waiting-section {
+  background: rgba(247, 183, 49, 0.07);
+  border: 1px solid rgba(247, 183, 49, 0.25);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.waiting-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.waiting-icon {
+  font-size: 18px;
+  color: #F7B731;
+}
+
+.waiting-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #F7B731;
+}
+
+.waiting-subtitle {
+  font-size: 13px;
+  color: #888;
+  margin: 0 0 10px;
+}
+
+.progress-bar-track {
+  height: 6px;
+  background: rgba(247, 183, 49, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: #F7B731;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.waiting-hint {
+  font-size: 12px;
+  color: #aaa;
+  margin: 0 0 14px;
+}
+
+.waiting-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.edit-btn {
+  --color: #6C63FF;
+  --border-color: #6C63FF;
+  --border-radius: 12px;
+}
+
+.delete-btn {
+  --color: #FC5C65;
+  --border-radius: 12px;
+}
+
 // ── Not found ─────────────────────────────────
 .not-found {
   display: flex;

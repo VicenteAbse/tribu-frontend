@@ -177,6 +177,16 @@ export class ApiService {
     return this.http.put<Notification>(`${this.base}/notifications/${notificationId}/read`, {});
   }
 
+  // --- Push notifications ---
+
+  registerFcmToken(token: string): Observable<void> {
+    return this.http.put<void>(`${this.base}/users/me/fcm-token`, { token });
+  }
+
+  removeFcmToken(): Observable<void> {
+    return this.http.delete<void>(`${this.base}/users/me/fcm-token`);
+  }
+
   // --- Support ---
 
   sendReport(body: CreateReportRequest): Observable<void> {

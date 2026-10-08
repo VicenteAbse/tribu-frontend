@@ -55,7 +55,7 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy, ViewWillEnter {
   readonly categoryIcons = CATEGORY_ICONS;
 
   groups: GroupDiscovery[] = [];
-  isLoading = false;
+  isLoading = true;
 
   currentIndex = 0;
   likeOpacity = 0;

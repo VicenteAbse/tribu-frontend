@@ -1,4 +1,22 @@
-@if (group) {
+@if (isLoading) {
+  <ion-header class="admin-header">
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button (click)="goBack()">
+          <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content>
+    <div style="padding: 16px;">
+      <ion-skeleton-text animated style="width: 50%; height: 20px; margin-bottom: 12px;"></ion-skeleton-text>
+      @for (i of [1,2,3,4,5]; track i) {
+        <ion-skeleton-text animated style="width: 100%; height: 56px; margin-bottom: 8px; border-radius: 8px;"></ion-skeleton-text>
+      }
+    </div>
+  </ion-content>
+} @else if (group) {
 
   <ion-header class="admin-header">
     <ion-toolbar>
@@ -23,7 +41,7 @@
       }
     </ion-toolbar>
 
-    <ion-toolbar class="segment-toolbar">
+    <div class="segment-wrapper">
       <ion-segment
         [value]="activeSegment"
         (ionChange)="onSegmentChange($event)"
@@ -39,7 +57,7 @@
           </ion-segment-button>
         }
       </ion-segment>
-    </ion-toolbar>
+    </div>
   </ion-header>
 
   <ion-content class="admin-content">
@@ -117,12 +135,19 @@
     @if (activeSegment === 'events') {
       <div class="tab-content">
 
-        @if (!showEventForm) {
+        @if (group.status !== 'ACTIVE') {
+          <div class="events-blocked">
+            <ion-icon name="time-outline"></ion-icon>
+            <p>Los eventos se habilitan cuando el grupo alcance el mínimo de integrantes.</p>
+          </div>
+        } @else if (!showEventForm) {
           <button class="create-event-btn" type="button" (click)="showEventForm = true">
             <ion-icon name="add-circle-outline"></ion-icon>
             Crear nuevo evento
           </button>
-        } @else {
+        }
+
+        @if (showEventForm && group.status === 'ACTIVE') {
           <div class="event-form-card" [formGroup]="eventForm">
             <h3 class="form-card-title">Nuevo evento</h3>
 
@@ -199,7 +224,7 @@
           }
         }
 
-        @if (upcomingEvents.length === 0 && pastEvents.length === 0) {
+        @if (upcomingEvents.length === 0 && pastEvents.length === 0 && group.status === 'ACTIVE') {
           <div class="empty-state">
             <ion-icon name="calendar-outline"></ion-icon>
             <p>Aún no hay eventos</p>
@@ -357,6 +382,18 @@
             <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
             Guardar cambios
           </ion-button>
+
+          @if (isOwner) {
+            <ion-button
+              expand="block"
+              fill="clear"
+              class="delete-group-btn"
+              type="button"
+              (click)="confirmDelete()">
+              <ion-icon name="trash-outline" slot="start"></ion-icon>
+              Eliminar grupo
+            </ion-button>
+          }
         </div>
 
       </form>

@@ -59,22 +59,22 @@
 }
 
 // ── Segment ───────────────────────────────────
-.segment-toolbar {
-  --background: var(--c-bg);
-  --border-color: var(--c-border);
+.segment-wrapper {
+  background: var(--c-bg);
+  padding: 6px 12px 8px;
 }
 
 .admin-segment {
   --background: var(--c-surface);
   border-radius: 10px;
-  margin: 0 12px 8px;
 
   ion-segment-button {
     --color: var(--c-text-6);
     --color-checked: var(--c-text-1);
     --indicator-color: #6C63FF;
     --border-radius: 8px;
-    min-width: 0;
+    min-width: 80px;
+    flex: 1;
   }
 }
 
@@ -841,6 +841,34 @@
 
 .edit-submit-section {
   padding: 28px 16px calc(32px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.delete-group-btn {
+  --color: #FC5C65;
+  margin-top: 4px;
+}
+
+.events-blocked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 24px;
+  text-align: center;
+
+  ion-icon {
+    font-size: 36px;
+    color: #F7B731;
+  }
+
+  p {
+    font-size: 14px;
+    color: var(--c-text-5, #888);
+    margin: 0;
+  }
 }
 
 .edit-submit-btn {

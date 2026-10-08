@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Platform } from '@ionic/angular';
 import { AuthService } from './services/auth.service';
 import { ThemeService } from './services/theme.service';
+import { PushNotificationService } from './services/push-notification.service';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +17,7 @@ export class AppComponent {
     private platform: Platform,
     private authService: AuthService,
     private router: Router,
+    private push: PushNotificationService,
   ) {
     theme.initialize();
     this.initializeApp();
@@ -25,6 +27,7 @@ export class AppComponent {
     await this.platform.ready();
     await this.authService.loadToken();
     if (this.authService.isAuthenticated()) {
+      this.push.initialize();
       this.router.navigate(['/tabs/discovery'], { replaceUrl: true });
     }
   }

@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ActionSheetController, AlertController, NavController, ToastController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
-import { GroupEvent, GroupMember, JoinRequest } from '../dtos/api.dto';
+import { GroupEvent, GroupMember, GroupStatus, JoinRequest } from '../dtos/api.dto';
 import { GroupEventDto } from '../dtos/group-event.dto';
 import { JoinRequestDto } from '../dtos/join-request.dto';
 import { GroupMemberDto } from '../dtos/group-detail.dto';
@@ -25,6 +25,7 @@ interface AdminGroupData {
   description: string;
   category: string;
   coverImageBase64: string | null;
+  status: GroupStatus;
 }
 
 @Component({
@@ -38,6 +39,7 @@ export class GroupAdminPage implements OnInit {
 
   group: AdminGroupData | null = null;
   activeSegment = 'members';
+  isLoading = true;
 
   members: GroupMemberDto[] = [];
   pendingRequests: JoinRequestDto[] = [];
@@ -101,12 +103,16 @@ export class GroupAdminPage implements OnInit {
       this.api.getGroup(uuid).toPromise(),
       this.api.getMyProfile().toPromise(),
       this.api.getGroupEvents(uuid).toPromise().catch(() => [] as GroupEvent[]),
-      this.api.getJoinRequests(uuid).toPromise().catch(() => [] as JoinRequest[])
-    ]).then(([detail, profile, events, requests]) => {
+    ]).then(async ([detail, profile, events]) => {
       if (!detail || !profile) { this.navCtrl.back(); return; }
 
       const myMembership = detail.members.find(m => m.email === profile.email);
       const myRole: 'owner' | 'admin' = myMembership?.role === 'OWNER' ? 'owner' : 'admin';
+
+      const isOwnerOrAdmin = myMembership?.role === 'OWNER' || myMembership?.role === 'ADMIN';
+      const requests: JoinRequest[] = isOwnerOrAdmin
+        ? await this.api.getJoinRequests(uuid).toPromise().catch(() => [] as JoinRequest[]) as JoinRequest[]
+        : [];
 
       this.group = {
         uuid: detail.uuid,
@@ -117,7 +123,8 @@ export class GroupAdminPage implements OnInit {
         joinPolicy: detail.joinPolicy === 'OPEN' ? 'open' : 'approval',
         description: detail.description,
         category: CATEGORY_LABELS[detail.category ?? ''] ?? (detail.category ?? ''),
-        coverImageBase64: detail.coverImageBase64 ?? null
+        coverImageBase64: detail.coverImageBase64 ?? null,
+        status: detail.status
       };
 
       this.members = detail.members.map(m => this.toMemberDisplay(m));
@@ -132,7 +139,8 @@ export class GroupAdminPage implements OnInit {
       });
 
       this.editImageSlots = [detail.coverImageBase64 ?? null, null, null];
-    }).catch(() => this.navCtrl.back());
+      this.isLoading = false;
+    }).catch(() => { this.isLoading = false; this.navCtrl.back(); });
   }
 
   private toMemberDisplay(m: GroupMember): GroupMemberDto {
@@ -356,5 +364,28 @@ export class GroupAdminPage implements OnInit {
     }).subscribe({
       next: () => this.navCtrl.back()
     });
+  }
+
+  async confirmDelete() {
+    const alert = await this.alertCtrl.create({
+      header: 'Eliminar grupo',
+      message: '¿Estás seguro? Esta acción no se puede deshacer.',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Eliminar',
+          role: 'destructive',
+          handler: async () => {
+            const toast = await this.toastCtrl.create({
+              message: 'La eliminación de grupos estará disponible próximamente.',
+              duration: 2500,
+              position: 'bottom'
+            });
+            toast.present();
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 }

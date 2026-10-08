@@ -1,9 +1,12 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'tribu-frontend',
-  webDir: 'www'
+  appId: 'cl.vicenteabse.trivy',
+  appName: 'Trivy',
+  webDir: 'www',
+  server: {
+    androidScheme: 'https'
+  }
 };
 
 export default config;

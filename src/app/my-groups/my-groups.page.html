@@ -22,7 +22,19 @@
 
 <ion-content class="my-groups-content" [fullscreen]="false">
 
-  @if (hasAnyResults) {
+  @if (isLoading) {
+    <div class="groups-list">
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="group-item" style="padding: 12px 16px; display: flex; align-items: center; gap: 12px;">
+          <ion-skeleton-text animated style="width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0;"></ion-skeleton-text>
+          <div style="flex: 1;">
+            <ion-skeleton-text animated style="width: 60%; height: 14px; margin-bottom: 6px;"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 40%; height: 12px;"></ion-skeleton-text>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (hasAnyResults) {
     <div class="groups-list">
 
       <!-- ── Grupos que administro ── -->
@@ -75,7 +87,7 @@
 
 <!-- Template reutilizable para cada ítem de grupo -->
 <ng-template #groupItem let-group="group" let-last="last">
-  <div class="group-item" (click)="openGroup(group)">
+  <div class="group-item" [class.group-item--waiting]="group.status !== 'ACTIVE'" (click)="openGroup(group)">
 
     <div class="avatar-wrapper">
       @if (group.coverImageBase64) {
@@ -96,7 +108,12 @@
       <div class="item-top">
         <span class="group-name">{{ group.name }}</span>
         <div class="item-right">
-          @if (group.unreadCount > 0) {
+          @if (group.status !== 'ACTIVE') {
+            <span class="waiting-badge">
+              <ion-icon name="time-outline"></ion-icon>
+              En espera
+            </span>
+          } @else if (group.unreadCount > 0) {
             <span class="unread-badge">{{ group.unreadCount > 99 ? '99+' : group.unreadCount }}</span>
           } @else {
             <span class="msg-time">{{ group.statusLabel }}</span>
