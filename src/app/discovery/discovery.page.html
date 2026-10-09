@@ -46,9 +46,31 @@
     <!-- Card stack -->
     <div class="card-area">
 
-      @if (isLoading) {
-        <div class="empty-state">
-          <ion-spinner name="crescent"></ion-spinner>
+      @if (locationPermission === 'denied') {
+        <div class="empty-state location-denied">
+          <ion-icon name="location-outline"></ion-icon>
+          <p class="empty-title">Ubicación requerida</p>
+          <p class="empty-sub">Necesitamos tu ubicación para mostrarte grupos cercanos.</p>
+          <ion-button class="location-btn" (click)="requestLocationPermission()">
+            <ion-icon name="navigate-outline"></ion-icon>&nbsp;
+            Permitir ubicación
+          </ion-button>
+        </div>
+      } @else if (locationPermission === 'checking' || isLoading) {
+        <div class="radar-state">
+          <div class="radar-wrap">
+            <div class="radar-wave wave-1"></div>
+            <div class="radar-wave wave-2"></div>
+            <div class="radar-wave wave-3"></div>
+            <div class="radar-avatar">
+              @if (profile?.avatarBase64) {
+                <img [src]="'data:image/jpeg;base64,' + profile!.avatarBase64" alt="avatar" />
+              } @else {
+                <span>{{ avatarInitials }}</span>
+              }
+            </div>
+          </div>
+          <p class="radar-label">Buscando grupos cerca de ti…</p>
         </div>
       } @else if (hasCards) {
         <div class="card-stack">

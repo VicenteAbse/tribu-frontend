@@ -4,13 +4,16 @@ import {
   ElementRef,
   NgZone,
   OnDestroy,
+  OnInit,
   QueryList,
   ViewChildren
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { GestureController, GestureDetail, ViewWillEnter } from '@ionic/angular';
+import { Capacitor } from '@capacitor/core';
+import { App, AppState } from '@capacitor/app';
 import { Geolocation } from '@capacitor/geolocation';
-import { GroupDiscovery, GroupCategory, GenderPreference, Notification } from '../dtos/api.dto';
+import { GroupDiscovery, GroupCategory, GenderPreference, Notification, UserProfile } from '../dtos/api.dto';
 import { ApiService } from '../services/api.service';
 
 const COLOR_PALETTE = [
@@ -47,7 +50,7 @@ const THRESHOLD = 80;
   styleUrls: ['./discovery.page.scss'],
   standalone: false
 })
-export class DiscoveryPage implements AfterViewInit, OnDestroy, ViewWillEnter {
+export class DiscoveryPage implements OnInit, AfterViewInit, OnDestroy, ViewWillEnter {
   @ViewChildren('swipeCard') cardElements!: QueryList<ElementRef>;
 
   readonly allCategories = ALL_CATEGORIES;
@@ -74,6 +77,15 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy, ViewWillEnter {
   notificationsOpen = false;
   notifications: Notification[] = [];
 
+  locationPermission: 'checking' | 'granted' | 'denied' = 'checking';
+
+  profile: UserProfile | null = null;
+
+  get avatarInitials(): string {
+    if (!this.profile?.name?.trim()) return '?';
+    return this.profile.name.trim().split(/\s+/).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+  }
+
   private userLatitude?: number;
   private userLongitude?: number;
   private activeGesture?: ReturnType<GestureController['create']>;
@@ -86,8 +98,24 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy, ViewWillEnter {
     private apiService: ApiService,
   ) {}
 
-  ionViewWillEnter() {
+  ngOnInit() {
+    this.apiService.getMyProfile().subscribe({ next: p => this.profile = p, error: () => {} });
     this.initLocation();
+    if (Capacitor.isNativePlatform()) {
+      App.addListener('appStateChange', ({ isActive }: AppState) => {
+        if (isActive && this.locationPermission !== 'granted') {
+          setTimeout(() => {
+            this.ngZone.run(() => {
+              this.locationPermission = 'checking';
+              this.initLocation();
+            });
+          }, 600);
+        }
+      });
+    }
+  }
+
+  ionViewWillEnter() {
     this.loadNotifications();
   }
 
@@ -97,22 +125,41 @@ export class DiscoveryPage implements AfterViewInit, OnDestroy, ViewWillEnter {
 
   ngOnDestroy() {
     this.activeGesture?.destroy();
+    App.removeAllListeners();
+  }
+
+  async requestLocationPermission() {
+    this.locationPermission = 'checking';
+    this.isLoading = true;
+    await this.initLocation();
   }
 
   private async initLocation() {
     try {
-      const pos = await Geolocation.getCurrentPosition({ timeout: 5000 });
-      this.userLatitude  = pos.coords.latitude;
-      this.userLongitude = pos.coords.longitude;
+      if (Capacitor.isNativePlatform()) {
+        const status = await Geolocation.checkPermissions();
+        if (status.location !== 'granted') {
+          this.ngZone.run(() => { this.locationPermission = 'denied'; this.isLoading = false; });
+          return;
+        }
+      }
+      const pos = await Geolocation.getCurrentPosition({ timeout: 15000 });
+      this.ngZone.run(() => {
+        this.userLatitude  = pos.coords.latitude;
+        this.userLongitude = pos.coords.longitude;
+        this.locationPermission = 'granted';
+      });
     } catch {
-      // sin ubicación: la API devuelve grupos sin filtro de distancia
-    } finally {
-      this.loadGroups();
+      this.ngZone.run(() => { this.locationPermission = 'denied'; this.isLoading = false; });
+      return;
     }
+    this.loadGroups();
   }
 
   loadGroups() {
     this.isLoading = true;
+    this.groups = [];
+    this.currentIndex = 0;
     const radiusKm = this.maxDistance < MAX_DISTANCE_DEFAULT ? this.maxDistance : undefined;
     const category = this.selectedCategories.length === 1 ? this.selectedCategories[0] : undefined;
 

@@ -76,7 +76,15 @@
   </div> -->
 
   <!-- ── Settings ── -->
+  @if (isLoading) {
+    <div class="content-section" style="padding: 16px;">
+      @for (i of [1,2,3,4]; track i) {
+        <ion-skeleton-text animated style="width: 100%; height: 52px; margin-bottom: 8px; border-radius: 12px;"></ion-skeleton-text>
+      }
+    </div>
+  }
   @for (section of settingsSections; track section.title) {
+    @if (!isLoading) {
     <div class="content-section">
       <h3 class="section-title">{{ section.title }}</h3>
       <div class="settings-group">
@@ -99,9 +107,11 @@
         }
       </div>
     </div>
+    }
   }
 
   <!-- ── Cerrar sesión ── -->
+  @if (!isLoading) {
   <div class="signout-wrap">
     <ion-button
       expand="block"
@@ -113,5 +123,6 @@
     </ion-button>
     <p class="app-version">Trivy v0.1.0</p>
   </div>
+  }
 
 </ion-content>

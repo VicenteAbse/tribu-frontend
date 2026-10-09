@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { PushNotifications, Token, ActionPerformed } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
+import { Geolocation } from '@capacitor/geolocation';
 import { ApiService } from './api.service';
 
 export type PushNotificationType =
@@ -24,10 +25,23 @@ export class PushNotificationService {
     if (!Capacitor.isNativePlatform()) return;
 
     const permission = await PushNotifications.requestPermissions();
-    if (permission.receive !== 'granted') return;
+    if (permission.receive === 'granted') {
+      await PushNotifications.register();
+      this.registerListeners();
+    }
 
-    await PushNotifications.register();
-    this.registerListeners();
+    await this.requestGeolocation();
+  }
+
+  private async requestGeolocation(): Promise<void> {
+    try {
+      let status = await Geolocation.checkPermissions();
+      if (status.location === 'prompt' || status.location === 'prompt-with-rationale') {
+        await Geolocation.requestPermissions();
+      }
+    } catch {
+      // silencioso — discovery maneja el estado de permisos
+    }
   }
 
   async unregister(): Promise<void> {
