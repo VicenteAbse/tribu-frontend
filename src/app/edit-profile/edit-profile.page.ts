@@ -73,7 +73,7 @@ export class EditProfilePage implements OnInit {
     }).subscribe({
       next: async () => {
         await loading.dismiss();
-        this.router.navigate(['/tabs/profile']);
+        this.router.navigate(['/tabs/profile'], { queryParams: { updated: '1' } });
         return;
       },
       error: async () => {

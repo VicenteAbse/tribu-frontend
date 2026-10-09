@@ -1,5 +1,5 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ToastController, ViewWillEnter } from '@ionic/angular';
 import { ThemeService } from '../services/theme.service';
 import { AuthService } from '../services/auth.service';
@@ -39,7 +39,7 @@ interface SettingsSection {
   styleUrls: ['./profile.page.scss'],
   standalone: false
 })
-export class ProfilePage implements ViewWillEnter {
+export class ProfilePage implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   profile: UserProfile | null = null;
@@ -70,6 +70,7 @@ export class ProfilePage implements ViewWillEnter {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private actionSheet: ActionSheetController,
     private toastCtrl: ToastController,
     public themeService: ThemeService,
@@ -78,7 +79,14 @@ export class ProfilePage implements ViewWillEnter {
     private push: PushNotificationService,
   ) {}
 
-  ionViewWillEnter() {
+  ngOnInit() {
+    this.loadProfile();
+    this.route.queryParams.subscribe(params => {
+      if (params['updated']) this.loadProfile();
+    });
+  }
+
+  private loadProfile() {
     this.isLoading = true;
     this.apiService.getMyProfile().subscribe({
       next: (p) => { this.profile = p; this.isLoading = false; },

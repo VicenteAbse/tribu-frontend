@@ -1,0 +1,123 @@
+.modal-wrap {
+  position: relative;
+  padding: 32px 24px 28px;
+  text-align: center;
+  background: var(--ion-background-color, #fff);
+  border-radius: 20px;
+  min-height: 200px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--ion-color-medium);
+  font-size: 24px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-wrap {
+  margin: 0 auto 16px;
+  width: 80px;
+  height: 80px;
+}
+
+.avatar-img,
+.avatar-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.profile-name {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ion-text-color);
+}
+
+.profile-bio {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--ion-color-medium);
+  line-height: 1.5;
+}
+
+.chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.info-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: var(--ion-color-light);
+  border-radius: 20px;
+  font-size: 13px;
+  color: var(--ion-color-medium-shade);
+
+  ion-icon {
+    font-size: 14px;
+  }
+}
+
+.skeleton-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.skel-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+.skel-name {
+  width: 50%;
+  height: 20px;
+  border-radius: 4px;
+}
+
+.skel-bio {
+  width: 80%;
+  height: 14px;
+  border-radius: 4px;
+
+  &.short { width: 60%; }
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--ion-color-medium);
+  padding: 24px 0;
+
+  ion-icon { font-size: 40px; }
+  p { margin: 0; font-size: 14px; }
+}

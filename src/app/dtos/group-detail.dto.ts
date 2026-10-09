@@ -5,6 +5,7 @@ export type ViewerRole = 'creator' | 'admin' | 'member' | 'none';
 
 export interface GroupMemberDto {
   id: number;
+  uuid: string;
   name: string;
   initials: string;
   role: 'owner' | 'admin' | 'member';

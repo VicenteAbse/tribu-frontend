@@ -46,6 +46,16 @@ export interface UserProfile {
   avatarBase64?: string | null;
 }
 
+export interface PublicUserProfile {
+  uuid: string;
+  name: string;
+  description: string | null;
+  gender: Gender;
+  age: number | null;
+  avatarBase64: string | null;
+  createdAt: string | null;
+}
+
 export interface UpdateProfileRequest {
   name: string;
   description?: string;
@@ -89,8 +99,8 @@ export interface GroupDiscovery {
 export interface GroupMember {
   id: number;
   userId: number;
+  userUuid: string;
   name: string;
-  email: string;
   role: GroupMemberRole;
   muted: boolean;
   joinedAt: string;
@@ -141,8 +151,8 @@ export interface SwipeResult {
 export interface JoinRequest {
   id: number;
   userId: number;
+  userUuid: string;
   name: string;
-  email: string;
   status: JoinRequestStatus;
   createdAt: string;
 }

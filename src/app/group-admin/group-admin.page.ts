@@ -1,8 +1,9 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { ActionSheetController, AlertController, NavController, ToastController } from '@ionic/angular';
+import { ActionSheetController, AlertController, ModalController, NavController, ToastController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
+import { UserProfileModalComponent } from '../user-profile-modal/user-profile-modal.component';
 import { GroupEvent, GroupMember, GroupStatus, JoinRequest } from '../dtos/api.dto';
 import { GroupEventDto } from '../dtos/group-event.dto';
 import { JoinRequestDto } from '../dtos/join-request.dto';
@@ -75,6 +76,7 @@ export class GroupAdminPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private navCtrl: NavController,
+    private modalCtrl: ModalController,
     private actionSheetCtrl: ActionSheetController,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
@@ -106,7 +108,7 @@ export class GroupAdminPage implements OnInit {
     ]).then(async ([detail, profile, events]) => {
       if (!detail || !profile) { this.navCtrl.back(); return; }
 
-      const myMembership = detail.members.find(m => m.email === profile.email);
+      const myMembership = detail.members.find(m => m.userUuid === profile.uuid);
       const myRole: 'owner' | 'admin' = myMembership?.role === 'OWNER' ? 'owner' : 'admin';
 
       const isOwnerOrAdmin = myMembership?.role === 'OWNER' || myMembership?.role === 'ADMIN';
@@ -150,7 +152,7 @@ export class GroupAdminPage implements OnInit {
       : m.name.substring(0, 2).toUpperCase();
     const role: 'owner' | 'admin' | 'member' =
       m.role === 'OWNER' ? 'owner' : m.role === 'ADMIN' ? 'admin' : 'member';
-    return { id: m.id, name: m.name, initials, role, isMuted: m.muted };
+    return { id: m.id, uuid: m.userUuid, name: m.name, initials, role, isMuted: m.muted };
   }
 
   private toEventDisplay(e: GroupEvent): GroupEventDto {
@@ -175,10 +177,12 @@ export class GroupAdminPage implements OnInit {
     return {
       id: r.id,
       userId: r.userId,
+      userUuid: r.userUuid,
       userName: r.name,
+
       userInitials: initials,
       userAvatarColor: GROUP_COLORS[r.userId % GROUP_COLORS.length],
-      bio: r.email,
+      bio: '',
       requestedAt: date.toLocaleDateString('es', { day: 'numeric', month: 'short' })
     };
   }
@@ -190,6 +194,17 @@ export class GroupAdminPage implements OnInit {
   }
 
   goBack() { this.navCtrl.back(); }
+
+  async openUserProfile(uuid: string) {
+    const modal = await this.modalCtrl.create({
+      component: UserProfileModalComponent,
+      componentProps: { userUuid: uuid },
+      cssClass: 'user-profile-modal',
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
+    });
+    await modal.present();
+  }
 
   onSegmentChange(ev: CustomEvent) {
     this.activeSegment = ev.detail.value;

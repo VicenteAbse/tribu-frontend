@@ -73,13 +73,12 @@
             <span class="members-section-count">{{ pendingRequests.length }}</span>
           </div>
           @for (req of pendingRequests; track req.id) {
-            <div class="request-card">
+            <div class="request-card" (click)="openUserProfile(req.userUuid)">
               <div class="req-avatar" [style.background-color]="req.userAvatarColor">
                 {{ req.userInitials }}
               </div>
               <div class="req-info">
                 <span class="req-name">{{ req.userName }}</span>
-                <span class="req-bio">{{ req.bio }}</span>
                 <span class="req-time">{{ req.requestedAt }}</span>
               </div>
               <div class="req-actions">
@@ -101,7 +100,7 @@
           <span class="members-section-count">{{ members.length }}</span>
         </div>
         @for (member of members; track member.id) {
-          <div class="member-row">
+          <div class="member-row" (click)="openUserProfile(member.uuid)">
             <div class="member-avatar" [style.background-color]="group.backgroundColor">
               {{ member.initials }}
             </div>

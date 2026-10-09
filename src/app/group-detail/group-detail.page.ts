@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NavController } from '@ionic/angular';
-import { AlertController, ToastController } from '@ionic/angular';
+import { AlertController, ModalController, NavController, ToastController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
+import { UserProfileModalComponent } from '../user-profile-modal/user-profile-modal.component';
 import { GroupEvent, GroupMember, GroupMemberRole, GroupStatus } from '../dtos/api.dto';
 
 const GROUP_COLORS = ['#4ECDC4', '#FF6584', '#6C63FF', '#F7B731', '#A55EEA', '#FC5C65', '#26de81', '#45AAB8', '#f7797d'];
@@ -14,6 +14,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 interface MemberDisplay {
   id: number;
+  uuid: string;
   name: string;
   initials: string;
   role: 'admin' | 'member';
@@ -61,6 +62,7 @@ export class GroupDetailPage implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private navCtrl: NavController,
+    private modalCtrl: ModalController,
     private api: ApiService,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
@@ -75,12 +77,14 @@ export class GroupDetailPage implements OnInit {
     Promise.all([
       this.api.getMyProfile().toPromise(),
       this.api.getGroup(uuid).toPromise(),
-      this.api.getGroupEvents(uuid).toPromise().catch(() => [])
-    ]).then(([profile, detail, events]) => {
-      const myEmail = profile!.email;
-      const myMembership = detail!.members.find(m => m.email === myEmail);
+    ]).then(async ([profile, detail]) => {
+      const myMembership = detail!.members.find(m => m.userUuid === profile!.uuid);
+      const isMember = !!myMembership;
+      const events: GroupEvent[] = isMember
+        ? await this.api.getGroupEvents(uuid).toPromise().catch(() => []) as GroupEvent[]
+        : [];
 
-      this.isMember = !!myMembership;
+      this.isMember = isMember;
       this.isAdmin = myMembership?.role === 'ADMIN' || myMembership?.role === 'OWNER';
 
       this.group = {
@@ -112,7 +116,7 @@ export class GroupDetailPage implements OnInit {
     const initials = parts.length >= 2
       ? (parts[0][0] + parts[1][0]).toUpperCase()
       : m.name.substring(0, 2).toUpperCase();
-    return { id: m.id, name: m.name, initials, role: m.role === 'ADMIN' ? 'admin' : 'member' };
+    return { id: m.id, uuid: m.userUuid, name: m.name, initials, role: m.role === 'ADMIN' ? 'admin' : 'member' };
   }
 
   private toEventDisplay(e: GroupEvent): EventDisplay {
@@ -174,6 +178,17 @@ export class GroupDetailPage implements OnInit {
   }
 
   goBack()    { this.navCtrl.back(); }
+
+  async openUserProfile(uuid: string) {
+    const modal = await this.modalCtrl.create({
+      component: UserProfileModalComponent,
+      componentProps: { userUuid: uuid },
+      cssClass: 'user-profile-modal',
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
+    });
+    await modal.present();
+  }
   goToAdmin() { if (this.group) this.router.navigate(['/group-admin', this.group.uuid]); }
   goToChat()  { if (this.group) this.router.navigate(['/group-chat',  this.group.uuid]); }
 }

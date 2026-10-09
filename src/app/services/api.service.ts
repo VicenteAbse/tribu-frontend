@@ -28,6 +28,7 @@ import {
   UpdateGroupRequest,
   UpdateProfileRequest,
   UserProfile,
+  PublicUserProfile,
 } from '../dtos/api.dto';
 
 @Injectable({ providedIn: 'root' })
@@ -54,6 +55,10 @@ export class ApiService {
 
   getMyProfile(): Observable<UserProfile> {
     return this.http.get<UserProfile>(`${this.base}/users/me`);
+  }
+
+  getUserProfile(uuid: string): Observable<PublicUserProfile> {
+    return this.http.get<PublicUserProfile>(`${this.base}/users/${uuid}`);
   }
 
   updateMyProfile(body: UpdateProfileRequest): Observable<UserProfile> {

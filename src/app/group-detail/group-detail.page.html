@@ -130,7 +130,7 @@
         </h2>
         <div class="members-grid">
           @for (member of group.members; track member.id) {
-            <div class="member-item">
+            <div class="member-item" (click)="openUserProfile(member.uuid)">
               <div
                 class="member-avatar"
                 [style.background-color]="group.backgroundColor"

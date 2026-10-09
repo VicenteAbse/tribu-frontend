@@ -68,3 +68,10 @@ body.light-theme {
   --c-shadow:        rgba(0, 0, 0, 0.12);
   --c-dot-border:    #f2f1fb;
 }
+
+
+.user-profile-modal {
+  --height: auto;
+  --border-radius: 20px 20px 0 0;
+  align-items: flex-end;
+}

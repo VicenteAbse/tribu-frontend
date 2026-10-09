@@ -1,0 +1,56 @@
+<div class="modal-wrap">
+  <button class="close-btn" (click)="dismiss()">
+    <ion-icon name="close-outline"></ion-icon>
+  </button>
+
+  @if (isLoading) {
+    <div class="skeleton-wrap">
+      <ion-skeleton-text animated class="skel-avatar"></ion-skeleton-text>
+      <ion-skeleton-text animated class="skel-name"></ion-skeleton-text>
+      <ion-skeleton-text animated class="skel-bio"></ion-skeleton-text>
+      <ion-skeleton-text animated class="skel-bio short"></ion-skeleton-text>
+    </div>
+  } @else if (profile) {
+    <div class="avatar-wrap">
+      @if (profile.avatarBase64) {
+        <img class="avatar-img" [src]="'data:image/jpeg;base64,' + profile.avatarBase64" alt="avatar" />
+      } @else {
+        <div class="avatar-placeholder" [style.background-color]="avatarColor">
+          {{ initials }}
+        </div>
+      }
+    </div>
+
+    <h2 class="profile-name">{{ profile.name }}</h2>
+
+    @if (profile.description) {
+      <p class="profile-bio">{{ profile.description }}</p>
+    }
+
+    <div class="chips-row">
+      @if (profile.age) {
+        <span class="info-chip">
+          <ion-icon name="calendar-outline"></ion-icon>
+          {{ profile.age }} años
+        </span>
+      }
+      @if (profile.gender) {
+        <span class="info-chip">
+          <ion-icon name="person-outline"></ion-icon>
+          {{ genderLabel }}
+        </span>
+      }
+      @if (memberSince) {
+        <span class="info-chip">
+          <ion-icon name="time-outline"></ion-icon>
+          Desde {{ memberSince }}
+        </span>
+      }
+    </div>
+  } @else {
+    <div class="error-state">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <p>No se pudo cargar el perfil</p>
+    </div>
+  }
+</div>
