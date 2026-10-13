@@ -37,6 +37,58 @@
   } @else if (hasAnyResults) {
     <div class="groups-list">
 
+      <!-- ── Pendientes ── -->
+      @if (pendingGroups.length > 0) {
+        <div class="section">
+          <div class="section-header pending-header">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>Pendientes</span>
+            <span class="section-count">{{ pendingGroups.length }}</span>
+          </div>
+          @for (p of pendingGroups; track p.id; let last = $last) {
+            <div class="group-item pending-item" [class.no-border-last]="last" (click)="openPendingDetail(p)">
+              <div class="avatar-wrapper">
+                @if (p.coverImageBase64) {
+                  <img class="group-avatar group-avatar-img" [src]="'data:image/jpeg;base64,' + p.coverImageBase64" [alt]="p.name" />
+                } @else {
+                  <div class="group-avatar" [style.background-color]="p.backgroundColor">
+                    {{ p.name[0] }}
+                  </div>
+                }
+              </div>
+              <div class="item-body" [class.no-border]="last">
+                <div class="item-top">
+                  <span class="group-name">{{ p.name }}</span>
+                  <span class="pending-type-badge" [class.request-badge]="p.type === 'JOIN_REQUEST'">
+                    @if (p.type === 'JOIN_REQUEST') {
+                      <ion-icon name="mail-outline"></ion-icon>
+                    } @else {
+                      <ion-icon name="hourglass-outline"></ion-icon>
+                    }
+                    {{ p.typeLabel }}
+                  </span>
+                </div>
+                @if (p.type === 'LIKE') {
+                  <div class="pending-progress">
+                    <div class="pending-progress-bar">
+                      <div class="pending-progress-fill" [style.width.%]="p.progressPercent"></div>
+                    </div>
+                    <span class="pending-progress-label">{{ p.currentMembers }}/{{ p.minMembers }} miembros</span>
+                  </div>
+                }
+                <div class="item-bottom">
+                  <span class="pending-since">{{ p.since }}</span>
+                  <button class="retract-btn" type="button" (click)="$event.stopPropagation(); confirmRetract(p)">
+                    <ion-icon name="close-circle-outline"></ion-icon>
+                    {{ p.type === 'JOIN_REQUEST' ? 'Cancelar solicitud' : 'Retirar' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
       <!-- ── Grupos que administro ── -->
       @if (adminGroups.length > 0) {
         <div class="section">

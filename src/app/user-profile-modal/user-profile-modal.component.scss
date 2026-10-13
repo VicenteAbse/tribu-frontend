@@ -5,6 +5,8 @@
   background: var(--ion-background-color, #fff);
   border-radius: 20px;
   min-height: 200px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .close-btn {

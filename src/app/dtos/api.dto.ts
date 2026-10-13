@@ -7,6 +7,7 @@ export type GroupStatus = 'OPEN' | 'ACTIVE' | 'CLOSED';
 export type GroupMemberRole = 'MEMBER' | 'ADMIN' | 'OWNER';
 export type JoinPolicy = 'OPEN' | 'APPROVAL_REQUIRED';
 export type JoinRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type PendingGroupType = 'LIKE' | 'JOIN_REQUEST';
 
 // --- Auth ---
 
@@ -44,6 +45,9 @@ export interface UserProfile {
   searchRadiusKm: number;
   dailyLikesLeft: number;
   avatarBase64?: string | null;
+  activeGroupCount: number;
+  groupLimit: number | null;
+  premium: boolean;
 }
 
 export interface PublicUserProfile {
@@ -68,6 +72,19 @@ export interface UpdateAvatarRequest {
 
 // --- Groups ---
 
+export interface PendingGroupSummary {
+  uuid: string;
+  id: number;
+  name: string;
+  description: string;
+  status: GroupStatus;
+  type: PendingGroupType;
+  coverImageBase64?: string | null;
+  minMembers: number;
+  currentMembers: number;
+  since: string;
+}
+
 export interface GroupSummary {
   uuid: string;
   id: number;
@@ -91,6 +108,7 @@ export interface GroupDiscovery {
   maxMembers: number;
   likesCount: number;
   status: GroupStatus;
+  joinPolicy: JoinPolicy | null;
   createdAt: string;
   distanceKm: number | null;
   coverImageBase64?: string | null;
@@ -108,7 +126,6 @@ export interface GroupMember {
 
 export interface GroupDetail extends GroupDiscovery {
   members: GroupMember[];
-  joinPolicy: string;
 }
 
 export interface CreateGroupRequest {

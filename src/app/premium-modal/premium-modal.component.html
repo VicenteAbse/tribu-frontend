@@ -1,0 +1,67 @@
+<div class="modal-wrap">
+
+  <button class="close-btn" (click)="dismiss()">
+    <ion-icon name="close-outline"></ion-icon>
+  </button>
+
+  <!-- Header -->
+  <div class="modal-header">
+    <div class="crown-wrap">
+      <ion-icon name="star" class="crown-star s1"></ion-icon>
+      <ion-icon name="star" class="crown-star s2"></ion-icon>
+      <ion-icon name="star" class="crown-star s3"></ion-icon>
+      <div class="crown-icon">
+        <ion-icon name="diamond-outline"></ion-icon>
+      </div>
+    </div>
+
+    @if (reason === 'group_limit') {
+      <h2 class="modal-title">Alcanzaste el límite<br>de grupos gratuitos</h2>
+      <p class="modal-subtitle">Con el plan PRO puedes unirte a todos los grupos que quieras, sin límites.</p>
+    } @else {
+      <h2 class="modal-title">Desbloquea Trivy PRO</h2>
+      <p class="modal-subtitle">Lleva tu experiencia al siguiente nivel.</p>
+    }
+  </div>
+
+  <!-- Tabla comparativa -->
+  <div class="compare-table">
+    <div class="table-head">
+      <span class="col-feature"></span>
+      <span class="col-plan free-col">Free</span>
+      <span class="col-plan pro-col">
+        <ion-icon name="diamond-outline"></ion-icon> PRO
+      </span>
+    </div>
+
+    @for (f of features; track f.label) {
+      <div class="table-row">
+        <span class="row-label">{{ f.label }}</span>
+        <span class="row-val free-val">
+          @if (f.free === false) {
+            <ion-icon name="close-outline" class="val-no"></ion-icon>
+          } @else {
+            <span class="val-text">{{ f.free }}</span>
+          }
+        </span>
+        <span class="row-val pro-val">
+          @if (f.pro === true) {
+            <ion-icon name="checkmark-outline" class="val-yes"></ion-icon>
+          } @else {
+            <span class="val-text pro-text">{{ f.pro }}</span>
+          }
+        </span>
+      </div>
+    }
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-wrap">
+    <ion-button expand="block" class="subscribe-btn" (click)="subscribe()">
+      <ion-icon name="diamond-outline" slot="start"></ion-icon>
+      Suscribirme a PRO
+    </ion-button>
+    <button class="skip-btn" (click)="dismiss()">Ahora no</button>
+  </div>
+
+</div>

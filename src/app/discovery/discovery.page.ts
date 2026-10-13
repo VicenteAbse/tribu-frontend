@@ -9,11 +9,12 @@ import {
   ViewChildren
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { GestureController, GestureDetail, ViewWillEnter } from '@ionic/angular';
+import { GestureController, GestureDetail, ModalController, ToastController, ViewWillEnter } from '@ionic/angular';
 import { Capacitor } from '@capacitor/core';
 import { App, AppState } from '@capacitor/app';
 import { Geolocation } from '@capacitor/geolocation';
 import { GroupDiscovery, GroupCategory, GenderPreference, Notification, UserProfile } from '../dtos/api.dto';
+import { PremiumModalComponent } from '../premium-modal/premium-modal.component';
 import { ApiService } from '../services/api.service';
 
 const COLOR_PALETTE = [
@@ -96,6 +97,8 @@ export class DiscoveryPage implements OnInit, AfterViewInit, OnDestroy, ViewWill
     private router: Router,
     private ngZone: NgZone,
     private apiService: ApiService,
+    private toastCtrl: ToastController,
+    private modalCtrl: ModalController,
   ) {}
 
   ngOnInit() {
@@ -191,6 +194,11 @@ export class DiscoveryPage implements OnInit, AfterViewInit, OnDestroy, ViewWill
 
   get hasCards(): boolean {
     return this.currentIndex < this.groups.length;
+  }
+
+  get currentGroupNeedsApproval(): boolean {
+    const g = this.groups[this.currentIndex];
+    return g?.joinPolicy === 'APPROVAL_REQUIRED';
   }
 
   get hasUnreadNotifications(): boolean {
@@ -337,21 +345,49 @@ export class DiscoveryPage implements OnInit, AfterViewInit, OnDestroy, ViewWill
     this.isAnimating = true;
 
     const currentGroup = this.groups[this.currentIndex];
-    if (currentGroup) {
+
+    const animate = () => {
+      const x = liked ? window.innerWidth + 200 : -(window.innerWidth + 200);
+      const rotate = liked ? 30 : -30;
+      el.style.transition = 'transform 0.38s ease';
+      el.style.transform = `translateX(${x}px) rotate(${rotate}deg)`;
+      setTimeout(() => {
+        this.ngZone.run(() => {
+          this.currentIndex++;
+          this.isAnimating = false;
+          this.movedPx = 0;
+        });
+      }, 390);
+    };
+
+    if (!currentGroup) { this.isAnimating = false; return; }
+
+    if (!liked) {
       this.apiService.swipeGroup(currentGroup.uuid, { liked }).subscribe();
+      animate();
+      return;
     }
 
-    const x = liked ? window.innerWidth + 200 : -(window.innerWidth + 200);
-    const rotate = liked ? 30 : -30;
-    el.style.transition = 'transform 0.38s ease';
-    el.style.transform = `translateX(${x}px) rotate(${rotate}deg)`;
-    setTimeout(() => {
-      this.ngZone.run(() => {
-        this.currentIndex++;
+    this.apiService.swipeGroup(currentGroup.uuid, { liked }).subscribe({
+      next: () => animate(),
+      error: async (err) => {
         this.isAnimating = false;
+        el.style.transition = 'transform 0.3s ease';
+        el.style.transform = '';
         this.movedPx = 0;
-      });
-    }, 390);
+        if (err?.error?.code === 'GROUP_LIMIT_REACHED') {
+          const modal = await this.modalCtrl.create({
+            component: PremiumModalComponent,
+            componentProps: { reason: 'group_limit' },
+            cssClass: 'premium-modal',
+          });
+          await modal.present();
+        } else {
+          const toast = await this.toastCtrl.create({ message: 'No se pudo procesar. Intenta de nuevo.', duration: 2500, position: 'bottom', color: 'danger' });
+          await toast.present();
+        }
+      }
+    });
   }
 
   swipeLeft() {

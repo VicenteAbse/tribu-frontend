@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetController, ToastController, ViewWillEnter } from '@ionic/angular';
+import { ActionSheetController, AlertController, ToastController, ViewWillEnter } from '@ionic/angular';
 import { ThemeService } from '../services/theme.service';
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
@@ -72,6 +72,7 @@ export class ProfilePage implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private actionSheet: ActionSheetController,
+    private alertCtrl: AlertController,
     private toastCtrl: ToastController,
     public themeService: ThemeService,
     private authService: AuthService,
@@ -182,7 +183,19 @@ export class ProfilePage implements OnInit {
     console.log('Setting tapped:', action);
   }
 
-  async signOut() {
+  async confirmSignOut() {
+    const alert = await this.alertCtrl.create({
+      header: 'Cerrar sesión',
+      message: '¿Seguro que quieres cerrar sesión?',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        { text: 'Cerrar sesión', role: 'destructive', handler: () => this.signOut() }
+      ]
+    });
+    await alert.present();
+  }
+
+  private async signOut() {
     await this.push.unregister();
     await this.authService.clearToken();
     this.router.navigate(['/auth/login'], { replaceUrl: true });

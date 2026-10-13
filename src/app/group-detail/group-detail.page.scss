@@ -326,6 +326,13 @@
   font-weight: 700;
 }
 
+.leave-btn {
+  --color: var(--ion-color-medium);
+  font-size: 14px;
+  margin-top: 2px;
+  height: 36px;
+}
+
 // ── Waiting section ───────────────────────────
 .waiting-section {
   background: rgba(247, 183, 49, 0.07);

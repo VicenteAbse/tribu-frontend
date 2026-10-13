@@ -172,8 +172,20 @@
         </ion-button>
       } @else {
         <ion-button expand="block" class="join-btn" disabled>
-          <ion-icon name="heart-outline" slot="start"></ion-icon>
+          <ion-icon name="people-circle-outline" slot="start"></ion-icon>
           Únete dando like desde el explorador
+        </ion-button>
+      }
+      @if (isMember) {
+        <ion-button expand="block" fill="clear" class="leave-btn" (click)="confirmLeaveGroup()">
+          <ion-icon name="exit-outline" slot="start"></ion-icon>
+          Salir del grupo
+        </ion-button>
+      }
+      @if (pendingType) {
+        <ion-button expand="block" fill="clear" class="leave-btn" (click)="confirmRetractPending()">
+          <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+          {{ pendingType === 'JOIN_REQUEST' ? 'Cancelar solicitud' : 'Retirar like' }}
         </ion-button>
       }
     </div>

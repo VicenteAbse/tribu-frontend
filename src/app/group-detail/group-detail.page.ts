@@ -57,6 +57,7 @@ export class GroupDetailPage implements OnInit {
   isAdmin = false;
   isMember = false;
   isLoading = true;
+  pendingType: 'LIKE' | 'JOIN_REQUEST' | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -70,6 +71,8 @@ export class GroupDetailPage implements OnInit {
 
   ngOnInit() {
     const uuid = this.route.snapshot.paramMap.get('id')!;
+    const pt = this.route.snapshot.queryParamMap.get('pendingType');
+    this.pendingType = (pt === 'LIKE' || pt === 'JOIN_REQUEST') ? pt : null;
     this.loadData(uuid);
   }
 
@@ -152,29 +155,65 @@ export class GroupDetailPage implements OnInit {
 
   get isOwner(): boolean { return this.group?.myRole === 'OWNER'; }
 
-  async confirmDelete() {
+  async confirmRetractPending() {
+    const isRequest = this.pendingType === 'JOIN_REQUEST';
     const alert = await this.alertCtrl.create({
-      header: 'Eliminar grupo',
-      message: '¿Estás seguro? Esta acción no se puede deshacer.',
+      header: isRequest ? 'Cancelar solicitud' : 'Retirar like',
+      message: isRequest
+        ? `¿Cancelar tu solicitud para unirte a "${this.group!.name}"?`
+        : `¿Retirar tu like de "${this.group!.name}"? El grupo volverá a aparecer en el explorador.`,
       buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        {
-          text: 'Eliminar',
-          role: 'destructive',
-          handler: () => this.deleteGroup()
-        }
+        { text: 'No', role: 'cancel' },
+        { text: isRequest ? 'Cancelar solicitud' : 'Retirar', role: 'destructive', handler: () => this.retractPending() }
       ]
     });
     await alert.present();
   }
 
-  private async deleteGroup() {
-    const toast = await this.toastCtrl.create({
-      message: 'La eliminación de grupos estará disponible próximamente.',
-      duration: 2500,
-      position: 'bottom'
+  private retractPending() {
+    this.api.retractSwipe(this.group!.uuid).subscribe({
+      next: () => this.router.navigate(['/tabs/my-groups'], { replaceUrl: true, queryParams: { updated: '1' } }),
+      error: async () => {
+        const toast = await this.toastCtrl.create({
+          message: 'No se pudo retirar. Intenta de nuevo.',
+          duration: 2500, position: 'bottom', color: 'danger'
+        });
+        await toast.present();
+      }
     });
-    await toast.present();
+  }
+
+  async confirmLeaveGroup() {
+    const isOnlyMember = this.group!.memberCount === 1;
+    const isOwner = this.group!.myRole === 'OWNER';
+    let message = `¿Seguro que quieres salir de "${this.group!.name}"?`;
+    if (isOwner && isOnlyMember) {
+      message = `Eres el único integrante. Al salir, el grupo será eliminado permanentemente.`;
+    } else if (isOwner) {
+      message = `Eres el creador. La propiedad pasará al admin más antiguo o al miembro más antiguo.`;
+    }
+    const alert = await this.alertCtrl.create({
+      header: 'Salir del grupo',
+      message,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        { text: 'Salir', role: 'destructive', handler: () => this.leaveGroup() }
+      ]
+    });
+    await alert.present();
+  }
+
+  private leaveGroup() {
+    this.api.leaveGroup(this.group!.uuid).subscribe({
+      next: () => this.navCtrl.navigateRoot('/tabs/my-groups'),
+      error: async () => {
+        const toast = await this.toastCtrl.create({
+          message: 'No se pudo salir del grupo. Intenta de nuevo.',
+          duration: 2500, position: 'bottom', color: 'danger'
+        });
+        await toast.present();
+      }
+    });
   }
 
   goBack()    { this.navCtrl.back(); }
@@ -184,8 +223,6 @@ export class GroupDetailPage implements OnInit {
       component: UserProfileModalComponent,
       componentProps: { userUuid: uuid },
       cssClass: 'user-profile-modal',
-      breakpoints: [0, 1],
-      initialBreakpoint: 1,
     });
     await modal.present();
   }

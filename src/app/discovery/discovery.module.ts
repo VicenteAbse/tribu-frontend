@@ -5,6 +5,7 @@ import { IonicModule } from '@ionic/angular';
 import { DiscoveryPageRoutingModule } from './discovery-routing.module';
 import { DiscoveryPage } from './discovery.page';
 import { FormsModule } from '@angular/forms';
+import { PremiumModalModule } from '../premium-modal/premium-modal.module';
 
 @NgModule({
   declarations: [DiscoveryPage],
@@ -12,7 +13,8 @@ import { FormsModule } from '@angular/forms';
     CommonModule,
     IonicModule,
     FormsModule,
-    DiscoveryPageRoutingModule
+    DiscoveryPageRoutingModule,
+    PremiumModalModule
   ]
 })
 export class DiscoveryPageModule {}

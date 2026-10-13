@@ -200,8 +200,6 @@ export class GroupAdminPage implements OnInit {
       component: UserProfileModalComponent,
       componentProps: { userUuid: uuid },
       cssClass: 'user-profile-modal',
-      breakpoints: [0, 1],
-      initialBreakpoint: 1,
     });
     await modal.present();
   }
@@ -384,23 +382,25 @@ export class GroupAdminPage implements OnInit {
   async confirmDelete() {
     const alert = await this.alertCtrl.create({
       header: 'Eliminar grupo',
-      message: '¿Estás seguro? Esta acción no se puede deshacer.',
+      message: '¿Estás seguro? Se eliminarán todos los mensajes, eventos y miembros. Esta acción no se puede deshacer.',
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
-        {
-          text: 'Eliminar',
-          role: 'destructive',
-          handler: async () => {
-            const toast = await this.toastCtrl.create({
-              message: 'La eliminación de grupos estará disponible próximamente.',
-              duration: 2500,
-              position: 'bottom'
-            });
-            toast.present();
-          }
-        }
+        { text: 'Eliminar', role: 'destructive', handler: () => this.deleteGroup() }
       ]
     });
     await alert.present();
+  }
+
+  private deleteGroup() {
+    this.api.deleteGroup(this.group!.uuid).subscribe({
+      next: () => this.navCtrl.navigateRoot('/tabs/my-groups'),
+      error: async () => {
+        const toast = await this.toastCtrl.create({
+          message: 'No se pudo eliminar el grupo. Intenta de nuevo.',
+          duration: 2500, position: 'bottom', color: 'danger'
+        });
+        await toast.present();
+      }
+    });
   }
 }

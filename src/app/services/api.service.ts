@@ -19,6 +19,7 @@ import {
   Message,
   Notification,
   Page,
+  PendingGroupSummary,
   RegisterRequest,
   SendMessageRequest,
   SwipeRequest,
@@ -125,6 +126,10 @@ export class ApiService {
     return this.http.get<GroupMember[]>(`${this.base}/groups/${groupUuid}/members`);
   }
 
+  leaveGroup(groupUuid: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/groups/${groupUuid}/members/me`);
+  }
+
   removeMember(groupUuid: string, memberId: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/groups/${groupUuid}/members/${memberId}`);
   }
@@ -153,6 +158,18 @@ export class ApiService {
 
   rejectJoinRequest(groupUuid: string, requestId: number): Observable<JoinRequest> {
     return this.http.post<JoinRequest>(`${this.base}/groups/${groupUuid}/join-requests/${requestId}/reject`, {});
+  }
+
+  deleteGroup(groupUuid: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/groups/${groupUuid}`);
+  }
+
+  retractSwipe(groupUuid: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/groups/${groupUuid}/swipe`);
+  }
+
+  getMyPendingGroups(): Observable<PendingGroupSummary[]> {
+    return this.http.get<PendingGroupSummary[]>(`${this.base}/users/me/groups/pending`);
   }
 
   // --- Events ---
