@@ -52,4 +52,5 @@ export class UserProfileModalComponent implements OnInit {
   }
 
   dismiss() { this.modalCtrl.dismiss(); }
+  
 }
